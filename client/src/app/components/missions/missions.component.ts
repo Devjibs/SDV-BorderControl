@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, ChangeDetectorRef } from "@angular/core";
+import { Component, OnInit, OnDestroy } from "@angular/core";
 import { MatDialog } from "@angular/material/dialog";
 import { MatSnackBar } from "@angular/material/snack-bar";
 import { ApiService } from "../../services/api.service";
@@ -8,7 +8,6 @@ import {
   CreateMissionRequest,
   UpdateMissionRequest,
 } from "../../models/mission.model";
-import { MissionFormComponent } from "../mission-form/mission-form.component";
 import { Subscription } from "rxjs";
 
 @Component({
@@ -18,7 +17,15 @@ import { Subscription } from "rxjs";
 })
 export class MissionsComponent implements OnInit, OnDestroy {
   missions: Mission[] = [];
+  paginatedMissions: Mission[] = [];
   isLoading = true;
+
+  // Pagination
+  currentPage = 1;
+  pageSize = 6;
+  totalPages = 0;
+  totalItems = 0;
+
   displayedColumns: string[] = [
     "name",
     "startTime",
@@ -33,8 +40,7 @@ export class MissionsComponent implements OnInit, OnDestroy {
   constructor(
     private apiService: ApiService,
     private dialog: MatDialog,
-    private snackBar: MatSnackBar,
-    private cdr: ChangeDetectorRef
+    private snackBar: MatSnackBar
   ) {}
 
   ngOnInit(): void {
@@ -46,114 +52,39 @@ export class MissionsComponent implements OnInit, OnDestroy {
   }
 
   private loadMissions(): void {
-    console.log("🔄 Starting to load missions...");
     this.isLoading = true;
-
     this.subscriptions.push(
       this.apiService.getMissions().subscribe({
         next: (missions) => {
-          console.log("✅ Missions loaded successfully:", missions);
-          this.missions = missions;
+          this.missions = missions || [];
+          this.updatePagination();
           this.isLoading = false;
-          console.log("✅ Loading state set to false");
-          this.cdr.detectChanges(); // Force UI update
-          console.log("🔄 Change detection triggered");
         },
         error: (error) => {
-          console.error("❌ Error loading missions:", error);
-          this.missions = []; // Show empty state instead of mock data
+          console.error("Error loading missions:", error);
+          this.missions = [];
+          this.updatePagination();
           this.isLoading = false;
-          console.log("❌ Loading state set to false (error)");
-          this.cdr.detectChanges(); // Force UI update
-        },
-        complete: () => {
-          console.log("✅ Missions API call completed");
         },
       })
     );
   }
 
   openCreateMissionDialog(): void {
-    const dialogRef = this.dialog.open(MissionFormComponent, {
-      width: "600px",
-      disableClose: true,
-      data: { mode: "create" },
-    });
-
-    dialogRef.afterClosed().subscribe((result: CreateMissionRequest) => {
-      if (result) {
-        this.createMission(result);
-      }
+    // For now, just show a simple message
+    this.snackBar.open("Create Mission dialog will be implemented", "Close", {
+      duration: 3000,
     });
   }
 
   openEditMissionDialog(mission: Mission): void {
-    const dialogRef = this.dialog.open(MissionFormComponent, {
-      width: "600px",
-      disableClose: true,
-      data: { mode: "edit", mission: mission },
-    });
-
-    dialogRef.afterClosed().subscribe((result: UpdateMissionRequest) => {
-      if (result) {
-        this.updateMission(mission.missionId, result);
+    // For now, just show a simple message
+    this.snackBar.open(
+      `Edit Mission ${mission.name} dialog will be implemented`,
+      "Close",
+      {
+        duration: 3000,
       }
-    });
-  }
-
-  private createMission(missionData: CreateMissionRequest): void {
-    this.subscriptions.push(
-      this.apiService.createMission(missionData).subscribe({
-        next: (mission) => {
-          this.snackBar.open("Mission created successfully!", "Close", {
-            duration: 3000,
-            panelClass: ["success-snackbar"],
-          });
-          this.loadMissions(); // Reload missions
-        },
-        error: (error) => {
-          console.error("Error creating mission:", error);
-          this.snackBar.open(
-            "Error creating mission. Please try again.",
-            "Close",
-            {
-              duration: 5000,
-              panelClass: ["error-snackbar"],
-            }
-          );
-        },
-      })
-    );
-  }
-
-  private updateMission(
-    missionId: string,
-    missionData: UpdateMissionRequest
-  ): void {
-    this.subscriptions.push(
-      this.apiService.updateMission(missionId, missionData).subscribe({
-        next: (mission) => {
-          this.snackBar.open("Mission updated successfully!", "Close", {
-            duration: 3000,
-            panelClass: ["success-snackbar"],
-          });
-          this.loadMissions(); // Reload missions
-        },
-        error: (error) => {
-          console.error("Error updating mission:", error);
-          // Update locally for demo
-          const index = this.missions.findIndex(
-            (m) => m.missionId === missionId
-          );
-          if (index !== -1) {
-            this.missions[index] = { ...this.missions[index], ...missionData };
-          }
-          this.snackBar.open("Mission updated successfully!", "Close", {
-            duration: 3000,
-            panelClass: ["success-snackbar"],
-          });
-        },
-      })
     );
   }
 
@@ -162,10 +93,22 @@ export class MissionsComponent implements OnInit, OnDestroy {
       this.subscriptions.push(
         this.apiService.deleteMission(mission.missionId).subscribe({
           next: () => {
-            this.loadMissions(); // Reload missions
+            this.snackBar.open("Mission deleted successfully!", "Close", {
+              duration: 3000,
+              panelClass: ["success-snackbar"],
+            });
+            this.loadMissions();
           },
           error: (error) => {
             console.error("Error deleting mission:", error);
+            this.snackBar.open(
+              "Error deleting mission. Please try again.",
+              "Close",
+              {
+                duration: 5000,
+                panelClass: ["error-snackbar"],
+              }
+            );
           },
         })
       );
@@ -176,7 +119,14 @@ export class MissionsComponent implements OnInit, OnDestroy {
     this.subscriptions.push(
       this.apiService.updateMissionStatus(mission.missionId, status).subscribe({
         next: () => {
-          mission.status = status;
+          // Update locally for immediate feedback
+          const index = this.missions.findIndex(
+            (m) => m.missionId === mission.missionId
+          );
+          if (index !== -1) {
+            this.missions[index].status = status;
+            this.updatePagination();
+          }
           this.snackBar.open("Mission status updated successfully!", "Close", {
             duration: 3000,
             panelClass: ["success-snackbar"],
@@ -184,12 +134,14 @@ export class MissionsComponent implements OnInit, OnDestroy {
         },
         error: (error) => {
           console.error("Error updating mission status:", error);
-          // Update locally for demo
-          mission.status = status;
-          this.snackBar.open("Mission status updated successfully!", "Close", {
-            duration: 3000,
-            panelClass: ["success-snackbar"],
-          });
+          this.snackBar.open(
+            "Error updating mission status. Please try again.",
+            "Close",
+            {
+              duration: 5000,
+              panelClass: ["error-snackbar"],
+            }
+          );
         },
       })
     );
@@ -221,5 +173,62 @@ export class MissionsComponent implements OnInit, OnDestroy {
       { value: MissionStatus.Completed, label: "Completed" },
       { value: MissionStatus.Cancelled, label: "Cancelled" },
     ];
+  }
+
+  // Pagination methods
+  private updatePagination(): void {
+    this.totalItems = this.missions.length;
+    this.totalPages = Math.ceil(this.totalItems / this.pageSize);
+
+    // Ensure current page is within bounds
+    if (this.currentPage > this.totalPages && this.totalPages > 0) {
+      this.currentPage = this.totalPages;
+    } else if (this.currentPage === 0 && this.totalPages > 0) {
+      this.currentPage = 1;
+    } else if (this.totalPages === 0) {
+      this.currentPage = 1;
+    }
+
+    const startIndex = (this.currentPage - 1) * this.pageSize;
+    const endIndex = startIndex + this.pageSize;
+    this.paginatedMissions = this.missions.slice(startIndex, endIndex);
+  }
+
+  onPageChange(page: number): void {
+    if (page >= 1 && page <= this.totalPages) {
+      this.currentPage = page;
+      this.updatePagination();
+    }
+  }
+
+  getPageNumbers(): number[] {
+    const pages: number[] = [];
+    const maxVisiblePages = 5;
+    let startPage = Math.max(
+      1,
+      this.currentPage - Math.floor(maxVisiblePages / 2)
+    );
+    let endPage = Math.min(this.totalPages, startPage + maxVisiblePages - 1);
+
+    // Adjust startPage if we're at the end of the total pages
+    if (endPage - startPage + 1 < maxVisiblePages) {
+      startPage = Math.max(1, endPage - maxVisiblePages + 1);
+    }
+
+    for (let i = startPage; i <= endPage; i++) {
+      pages.push(i);
+    }
+
+    return pages;
+  }
+
+  getStartItem(): number {
+    if (this.totalItems === 0) return 0;
+    return (this.currentPage - 1) * this.pageSize + 1;
+  }
+
+  getEndItem(): number {
+    if (this.totalItems === 0) return 0;
+    return Math.min(this.currentPage * this.pageSize, this.totalItems);
   }
 }

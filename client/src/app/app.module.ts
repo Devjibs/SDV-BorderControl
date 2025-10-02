@@ -31,7 +31,6 @@ import { AppRoutingModule } from "./app-routing.module";
 import { AppComponent } from "./app.component";
 import { DashboardComponent } from "./components/dashboard/dashboard.component";
 import { MissionsComponent } from "./components/missions/missions.component";
-import { MissionFormComponent } from "./components/mission-form/mission-form.component";
 import { VehicleMapComponent } from "./components/vehicle-map/vehicle-map.component";
 import { AlertsComponent } from "./components/alerts/alerts.component";
 import { VehicleDetailComponent } from "./components/vehicle-detail/vehicle-detail.component";
@@ -47,7 +46,6 @@ import { AnalyticsComponent } from "./components/analytics/analytics.component";
     AppComponent,
     DashboardComponent,
     MissionsComponent,
-    MissionFormComponent,
     VehicleMapComponent,
     AlertsComponent,
     VehicleDetailComponent,
