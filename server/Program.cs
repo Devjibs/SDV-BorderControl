@@ -24,6 +24,7 @@ builder.Services.AddScoped<ITelemetryService, TelemetryService>();
 builder.Services.AddScoped<IAlertService, AlertService>();
 builder.Services.AddScoped<IVehicleService, VehicleService>();
 builder.Services.AddSingleton<IAlertGenerationService, AlertGenerationService>();
+builder.Services.AddHostedService<TelemetryGenerationService>();
 
 // Add SignalR
 builder.Services.AddSignalR();

@@ -62,12 +62,8 @@ export class VehiclesComponent implements OnInit, OnDestroy {
       this.apiService.getVehicles().subscribe({
         next: (vehicles) => {
           console.log("✅ Vehicles loaded successfully:", vehicles);
-          // Generate mock telemetry data like dashboard does
-          this.vehicles = vehicles.map((vehicle) => ({
-            ...vehicle,
-            lastSeen: vehicle.lastSeen || new Date().toISOString(),
-            lastTelemetry: this.generateMockTelemetry(vehicle.vehicleId),
-          }));
+          this.vehicles = vehicles;
+          this.loadTelemetryForVehicles();
           this.updatePagination();
           this.isLoading = false;
         },
@@ -79,23 +75,25 @@ export class VehiclesComponent implements OnInit, OnDestroy {
     );
   }
 
-  private generateMockTelemetry(vehicleId: string): any {
-    return {
-      vehicleId: vehicleId,
-      timestamp: new Date().toISOString(),
-      latitude: 40.7128 + (Math.random() - 0.5) * 0.1,
-      longitude: -74.006 + (Math.random() - 0.5) * 0.1,
-      altitude: 10 + Math.random() * 50,
-      speed: Math.floor(Math.random() * 80),
-      temperature: 20 + Math.random() * 15,
-      additionalData: {
-        fuelLevel: Math.random(),
-        batteryLevel: Math.random(),
-        engineRpm: Math.floor(1000 + Math.random() * 3000),
-        oilPressure: 30 + Math.random() * 20,
-      },
-    };
+  private loadTelemetryForVehicles(): void {
+    this.vehicles.forEach((vehicle) => {
+      if (vehicle.vehicleId) {
+        this.subscriptions.push(
+          this.apiService.getLatestTelemetry(vehicle.vehicleId).subscribe({
+            next: (telemetry) => {
+              vehicle.lastTelemetry = telemetry;
+              console.log(`📊 Telemetry loaded for ${vehicle.name}:`, telemetry);
+            },
+            error: (error) => {
+              console.warn(`⚠️ No telemetry data for ${vehicle.name}:`, error);
+              vehicle.lastTelemetry = undefined;
+            },
+          })
+        );
+      }
+    });
   }
+
 
   openCreateVehicleDialog(): void {
     const dialogRef = this.dialog.open(VehicleFormComponent, {
