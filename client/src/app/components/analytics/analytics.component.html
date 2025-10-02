@@ -1,0 +1,332 @@
+<div class="analytics-container">
+    <div class="analytics-header">
+        <h1>Analytics Dashboard</h1>
+        <p>Comprehensive insights into your border control operations</p>
+    </div>
+
+    <!-- Loading State -->
+    <div *ngIf="isLoading" class="loading-container">
+        <mat-spinner></mat-spinner>
+        <p>Loading analytics data...</p>
+    </div>
+
+    <!-- Analytics Content -->
+    <div *ngIf="!isLoading" class="analytics-content">
+
+        <!-- Overview Cards -->
+        <div class="overview-section">
+            <h2>System Overview</h2>
+            <div class="overview-grid">
+                <mat-card class="overview-card">
+                    <mat-card-content>
+                        <div class="metric-item">
+                            <mat-icon>health_and_safety</mat-icon>
+                            <div>
+                                <h3>{{ formatNumber(overview.systemHealth) }}%</h3>
+                                <p>System Health</p>
+                            </div>
+                        </div>
+                    </mat-card-content>
+                </mat-card>
+
+                <mat-card class="overview-card">
+                    <mat-card-content>
+                        <div class="metric-item">
+                            <mat-icon>directions_car</mat-icon>
+                            <div>
+                                <h3>{{ overview.totalVehicles }}</h3>
+                                <p>Total Vehicles</p>
+                            </div>
+                        </div>
+                    </mat-card-content>
+                </mat-card>
+
+                <mat-card class="overview-card">
+                    <mat-card-content>
+                        <div class="metric-item">
+                            <mat-icon>assignment</mat-icon>
+                            <div>
+                                <h3>{{ overview.activeMissions }}</h3>
+                                <p>Active Missions</p>
+                            </div>
+                        </div>
+                    </mat-card-content>
+                </mat-card>
+
+                <mat-card class="overview-card">
+                    <mat-card-content>
+                        <div class="metric-item">
+                            <mat-icon>warning</mat-icon>
+                            <div>
+                                <h3>{{ overview.criticalAlerts }}</h3>
+                                <p>Critical Alerts</p>
+                            </div>
+                        </div>
+                    </mat-card-content>
+                </mat-card>
+            </div>
+        </div>
+
+        <!-- Vehicle Performance -->
+        <div class="section">
+            <h2>Vehicle Performance</h2>
+            <div class="charts-grid">
+                <mat-card class="chart-card">
+                    <mat-card-header>
+                        <mat-card-title>Top Performing Vehicles</mat-card-title>
+                    </mat-card-header>
+                    <mat-card-content>
+                        <div *ngIf="isLoadingVehicles" class="chart-loading">
+                            <mat-spinner diameter="30"></mat-spinner>
+                        </div>
+                        <div *ngIf="!isLoadingVehicles && vehiclePerformance.length > 0" class="performance-list">
+                            <div *ngFor="let vehicle of vehiclePerformance.slice(0, 5)" class="performance-item">
+                                <div class="vehicle-info">
+                                    <h4>{{ vehicle.name }}</h4>
+                                    <p>{{ vehicle.type }} • {{ vehicle.status }}</p>
+                                </div>
+                                <div class="performance-metrics">
+                                    <div class="metric">
+                                        <span class="label">Efficiency:</span>
+                                        <span class="value">{{ formatNumber(vehicle.efficiency) }}</span>
+                                    </div>
+                                    <div class="metric">
+                                        <span class="label">Avg Speed:</span>
+                                        <span class="value">{{ formatNumber(vehicle.averageSpeed) }} km/h</span>
+                                    </div>
+                                    <div class="metric">
+                                        <span class="label">Alerts:</span>
+                                        <span class="value"
+                                            [style.color]="vehicle.criticalAlerts > 0 ? '#f44336' : '#4caf50'">
+                                            {{ vehicle.totalAlerts }}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </mat-card-content>
+                </mat-card>
+
+                <mat-card class="chart-card">
+                    <mat-card-header>
+                        <mat-card-title>Vehicle Status Distribution</mat-card-title>
+                    </mat-card-header>
+                    <mat-card-content>
+                        <div class="status-distribution">
+                            <div *ngFor="let vehicle of vehiclePerformance" class="status-item">
+                                <div class="status-indicator" [style.background-color]="getStatusColor(vehicle.status)">
+                                </div>
+                                <span class="vehicle-name">{{ vehicle.name }}</span>
+                                <span class="status-text">{{ vehicle.status }}</span>
+                            </div>
+                        </div>
+                    </mat-card-content>
+                </mat-card>
+            </div>
+        </div>
+
+        <!-- Telemetry Analytics -->
+        <div class="section">
+            <h2>Telemetry Analytics</h2>
+            <div class="charts-grid">
+                <mat-card class="chart-card">
+                    <mat-card-header>
+                        <mat-card-title>Speed Distribution</mat-card-title>
+                    </mat-card-header>
+                    <mat-card-content>
+                        <div *ngIf="isLoadingTelemetry" class="chart-loading">
+                            <mat-spinner diameter="30"></mat-spinner>
+                        </div>
+                        <div *ngIf="!isLoadingTelemetry && telemetryTrends.speedDistribution"
+                            class="speed-distribution">
+                            <div *ngFor="let speed of telemetryTrends.speedDistribution" class="speed-bar">
+                                <div class="speed-label">{{ speed.speedRange }}</div>
+                                <div class="speed-bar-container">
+                                    <div class="speed-bar-fill"
+                                        [style.width.%]="(speed.count / telemetryTrends.totalRecords) * 100"></div>
+                                </div>
+                                <div class="speed-count">{{ speed.count }}</div>
+                            </div>
+                        </div>
+                    </mat-card-content>
+                </mat-card>
+
+                <mat-card class="chart-card">
+                    <mat-card-header>
+                        <mat-card-title>Telemetry Summary</mat-card-title>
+                    </mat-card-header>
+                    <mat-card-content>
+                        <div class="telemetry-summary">
+                            <div class="summary-item">
+                                <mat-icon>speed</mat-icon>
+                                <div>
+                                    <h4>{{ formatNumber(telemetryTrends.averageSpeed) }} km/h</h4>
+                                    <p>Average Speed</p>
+                                </div>
+                            </div>
+                            <div class="summary-item">
+                                <mat-icon>thermostat</mat-icon>
+                                <div>
+                                    <h4>{{ formatNumber(telemetryTrends.averageTemperature) }}°C</h4>
+                                    <p>Average Temperature</p>
+                                </div>
+                            </div>
+                            <div class="summary-item">
+                                <mat-icon>timeline</mat-icon>
+                                <div>
+                                    <h4>{{ telemetryTrends.totalRecords }}</h4>
+                                    <p>Total Records</p>
+                                </div>
+                            </div>
+                        </div>
+                    </mat-card-content>
+                </mat-card>
+            </div>
+        </div>
+
+        <!-- Alert Analytics -->
+        <div class="section">
+            <h2>Alert Analytics</h2>
+            <div class="charts-grid">
+                <mat-card class="chart-card">
+                    <mat-card-header>
+                        <mat-card-title>Alert Severity Distribution</mat-card-title>
+                    </mat-card-header>
+                    <mat-card-content>
+                        <div *ngIf="isLoadingAlerts" class="chart-loading">
+                            <mat-spinner diameter="30"></mat-spinner>
+                        </div>
+                        <div *ngIf="!isLoadingAlerts && alertPatterns.severityDistribution"
+                            class="severity-distribution">
+                            <div *ngFor="let severity of alertPatterns.severityDistribution" class="severity-item">
+                                <div class="severity-indicator"
+                                    [style.background-color]="getSeverityColor(severity.severity)"></div>
+                                <span class="severity-name">{{ severity.severity }}</span>
+                                <span class="severity-count">{{ severity.count }}</span>
+                                <span class="severity-percentage">{{ formatPercentage(severity.percentage) }}</span>
+                            </div>
+                        </div>
+                    </mat-card-content>
+                </mat-card>
+
+                <mat-card class="chart-card">
+                    <mat-card-header>
+                        <mat-card-title>Alert Types</mat-card-title>
+                    </mat-card-header>
+                    <mat-card-content>
+                        <div *ngIf="alertPatterns.typeDistribution" class="type-distribution">
+                            <div *ngFor="let type of alertPatterns.typeDistribution" class="type-item">
+                                <div class="type-bar">
+                                    <div class="type-label">{{ type.type }}</div>
+                                    <div class="type-bar-container">
+                                        <div class="type-bar-fill" [style.width.%]="type.percentage"></div>
+                                    </div>
+                                    <div class="type-count">{{ type.count }}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </mat-card-content>
+                </mat-card>
+            </div>
+        </div>
+
+        <!-- Mission Analytics -->
+        <div class="section">
+            <h2>Mission Analytics</h2>
+            <div class="charts-grid">
+                <mat-card class="chart-card">
+                    <mat-card-header>
+                        <mat-card-title>Mission Status</mat-card-title>
+                    </mat-card-header>
+                    <mat-card-content>
+                        <div *ngIf="isLoadingMissions" class="chart-loading">
+                            <mat-spinner diameter="30"></mat-spinner>
+                        </div>
+                        <div *ngIf="!isLoadingMissions && missionAnalytics.statusDistribution" class="mission-status">
+                            <div *ngFor="let status of missionAnalytics.statusDistribution" class="status-item">
+                                <div class="status-badge" [class]="'status-' + status.status.toLowerCase()">
+                                    {{ status.status }}
+                                </div>
+                                <div class="status-details">
+                                    <span class="status-count">{{ status.count }}</span>
+                                    <span class="status-percentage">{{ formatPercentage(status.percentage) }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </mat-card-content>
+                </mat-card>
+
+                <mat-card class="chart-card">
+                    <mat-card-header>
+                        <mat-card-title>Mission Performance</mat-card-title>
+                    </mat-card-header>
+                    <mat-card-content>
+                        <div class="mission-performance">
+                            <div class="performance-metric">
+                                <h3>{{ formatPercentage(missionAnalytics.successRate) }}</h3>
+                                <p>Success Rate</p>
+                            </div>
+                            <div class="performance-metric">
+                                <h3>{{ missionAnalytics.totalMissions }}</h3>
+                                <p>Total Missions</p>
+                            </div>
+                            <div class="performance-metric">
+                                <h3>{{ missionAnalytics.activeMissions }}</h3>
+                                <p>Active Missions</p>
+                            </div>
+                            <div class="performance-metric">
+                                <h3>{{ missionAnalytics.completedMissions }}</h3>
+                                <p>Completed</p>
+                            </div>
+                        </div>
+                    </mat-card-content>
+                </mat-card>
+            </div>
+        </div>
+
+        <!-- Geographic Analytics -->
+        <div class="section">
+            <h2>Geographic Coverage</h2>
+            <mat-card class="chart-card full-width">
+                <mat-card-header>
+                    <mat-card-title>Activity Heatmap</mat-card-title>
+                </mat-card-header>
+                <mat-card-content>
+                    <div *ngIf="isLoadingGeographic" class="chart-loading">
+                        <mat-spinner diameter="30"></mat-spinner>
+                    </div>
+                    <div *ngIf="!isLoadingGeographic && geographicData.heatmapData" class="geographic-info">
+                        <div class="geo-stats">
+                            <div class="stat-item">
+                                <mat-icon>location_on</mat-icon>
+                                <div>
+                                    <h4>{{ geographicData.uniqueLocations }}</h4>
+                                    <p>Active Locations</p>
+                                </div>
+                            </div>
+                            <div class="stat-item">
+                                <mat-icon>timeline</mat-icon>
+                                <div>
+                                    <h4>{{ geographicData.totalPoints }}</h4>
+                                    <p>Data Points</p>
+                                </div>
+                            </div>
+                            <div class="stat-item">
+                                <mat-icon>map</mat-icon>
+                                <div>
+                                    <h4>{{ geographicData.coverageArea.area }} {{ geographicData.coverageArea.unit }}
+                                    </h4>
+                                    <p>Coverage Area</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="heatmap-legend">
+                            <p>Activity intensity based on telemetry data from the last 7 days</p>
+                        </div>
+                    </div>
+                </mat-card-content>
+            </mat-card>
+        </div>
+
+    </div>
+</div>

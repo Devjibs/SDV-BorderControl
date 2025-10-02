@@ -184,4 +184,33 @@ export class ApiService {
   deleteVehicle(vehicleId: string): Observable<void> {
     return this.http.delete<void>(`${this.baseUrl}/vehicles/${vehicleId}`);
   }
+
+  // Analytics endpoints
+  getAnalyticsOverview(): Observable<any> {
+    return this.http.get<any>(`${this.baseUrl}/analytics/overview`);
+  }
+
+  getVehiclePerformance(): Observable<any[]> {
+    return this.http.get<any[]>(
+      `${this.baseUrl}/analytics/vehicles/performance`
+    );
+  }
+
+  getTelemetryTrends(hours: number = 24): Observable<any> {
+    return this.http.get<any>(
+      `${this.baseUrl}/analytics/telemetry/trends?hours=${hours}`
+    );
+  }
+
+  getAlertPatterns(): Observable<any> {
+    return this.http.get<any>(`${this.baseUrl}/analytics/alerts/patterns`);
+  }
+
+  getMissionAnalytics(): Observable<any> {
+    return this.http.get<any>(`${this.baseUrl}/analytics/missions/analytics`);
+  }
+
+  getGeographicHeatmap(): Observable<any> {
+    return this.http.get<any>(`${this.baseUrl}/analytics/geographic/heatmap`);
+  }
 }

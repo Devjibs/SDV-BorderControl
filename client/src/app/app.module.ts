@@ -40,6 +40,7 @@ import { NotificationDrawerComponent } from "./components/notification-drawer/no
 import { VehiclesComponent } from "./components/vehicles/vehicles.component";
 import { VehicleFormComponent } from "./components/vehicle-form/vehicle-form.component";
 import { AlertsManagementComponent } from "./components/alerts-management/alerts-management.component";
+import { AnalyticsComponent } from "./components/analytics/analytics.component";
 
 @NgModule({
   declarations: [
@@ -55,6 +56,7 @@ import { AlertsManagementComponent } from "./components/alerts-management/alerts
     VehiclesComponent,
     VehicleFormComponent,
     AlertsManagementComponent,
+    AnalyticsComponent,
   ],
   imports: [
     BrowserModule,
