@@ -1,6 +1,7 @@
 import { Component, OnInit, OnDestroy, ChangeDetectorRef } from "@angular/core";
 import { MatDialog } from "@angular/material/dialog";
 import { MatSnackBar } from "@angular/material/snack-bar";
+import { Router } from "@angular/router";
 import { VehicleFormComponent } from "../vehicle-form/vehicle-form.component";
 import { VehicleDetailComponent } from "../vehicle-detail/vehicle-detail.component";
 import { ApiService } from "../../services/api.service";
@@ -42,7 +43,8 @@ export class VehiclesComponent implements OnInit, OnDestroy {
     private dialog: MatDialog,
     private snackBar: MatSnackBar,
     private apiService: ApiService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private router: Router
   ) {}
 
   ngOnInit(): void {
@@ -60,7 +62,12 @@ export class VehiclesComponent implements OnInit, OnDestroy {
       this.apiService.getVehicles().subscribe({
         next: (vehicles) => {
           console.log("✅ Vehicles loaded successfully:", vehicles);
-          this.vehicles = vehicles;
+          // Generate mock telemetry data like dashboard does
+          this.vehicles = vehicles.map((vehicle) => ({
+            ...vehicle,
+            lastSeen: vehicle.lastSeen || new Date().toISOString(),
+            lastTelemetry: this.generateMockTelemetry(vehicle.vehicleId),
+          }));
           this.updatePagination();
           this.isLoading = false;
         },
@@ -70,6 +77,24 @@ export class VehiclesComponent implements OnInit, OnDestroy {
         },
       })
     );
+  }
+
+  private generateMockTelemetry(vehicleId: string): any {
+    return {
+      vehicleId: vehicleId,
+      timestamp: new Date().toISOString(),
+      latitude: 40.7128 + (Math.random() - 0.5) * 0.1,
+      longitude: -74.006 + (Math.random() - 0.5) * 0.1,
+      altitude: 10 + Math.random() * 50,
+      speed: Math.floor(Math.random() * 80),
+      temperature: 20 + Math.random() * 15,
+      additionalData: {
+        fuelLevel: Math.random(),
+        batteryLevel: Math.random(),
+        engineRpm: Math.floor(1000 + Math.random() * 3000),
+        oilPressure: 30 + Math.random() * 20,
+      },
+    };
   }
 
   openCreateVehicleDialog(): void {
@@ -102,16 +127,7 @@ export class VehiclesComponent implements OnInit, OnDestroy {
   }
 
   openVehicleDetail(vehicle: Vehicle): void {
-    const dialogRef = this.dialog.open(VehicleDetailComponent, {
-      width: "800px",
-      maxHeight: "90vh",
-      data: { vehicle: vehicle },
-    });
-
-    dialogRef.afterClosed().subscribe(() => {
-      // Refresh vehicle data if needed
-      this.loadVehicles();
-    });
+    this.router.navigate(["/vehicle", vehicle.vehicleId]);
   }
 
   private createVehicle(vehicle: Vehicle): void {

@@ -1,5 +1,6 @@
 import { Component, OnInit, OnDestroy } from "@angular/core";
 import { MatSnackBar } from "@angular/material/snack-bar";
+import { Router } from "@angular/router";
 import { ApiService } from "../../services/api.service";
 import { WebSocketService } from "../../services/websocket.service";
 import { Mission, MissionStatus } from "../../models/mission.model";
@@ -16,6 +17,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   missions: Mission[] = [];
   activeAlerts: Alert[] = [];
   vehicles: any[] = [];
+  displayedVehicles: any[] = [];
   isLoading = true;
 
   // Analytics data
@@ -29,7 +31,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
   constructor(
     private apiService: ApiService,
     private webSocketService: WebSocketService,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    private router: Router
   ) {}
 
   ngOnInit(): void {
@@ -111,11 +114,15 @@ export class DashboardComponent implements OnInit, OnDestroy {
             fuelLevel: Math.floor(Math.random() * 100),
             batteryLevel: Math.floor(Math.random() * 100),
           }));
+
+          // Limit to 5 vehicles for dashboard display
+          this.displayedVehicles = this.vehicles.slice(0, 5);
           this.updateAnalytics();
         },
         error: (error) => {
           console.error("Error loading vehicles:", error);
           this.vehicles = []; // Show empty state instead of mock data
+          this.displayedVehicles = [];
         },
       })
     );
@@ -483,5 +490,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
       resolvedBy: apiAlert.resolvedBy,
       additionalData: apiAlert.additionalData || {},
     };
+  }
+
+  navigateToVehicles(): void {
+    this.router.navigate(["/vehicles"]);
   }
 }

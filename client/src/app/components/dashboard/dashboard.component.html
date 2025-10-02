@@ -127,7 +127,7 @@
             <mat-card-title>Vehicle Status</mat-card-title>
         </mat-card-header>
         <mat-card-content>
-            <table mat-table [dataSource]="vehicles" class="data-table">
+            <table mat-table [dataSource]="displayedVehicles" class="data-table">
                 <ng-container matColumnDef="image">
                     <th mat-header-cell *matHeaderCellDef>Vehicle</th>
                     <td mat-cell *matCellDef="let vehicle">
@@ -179,6 +179,14 @@
                 <tr mat-row *matRowDef="let row; columns: ['image', 'status', 'telemetry', 'lastSeen', 'actions'];">
                 </tr>
             </table>
+
+            <!-- View All Button -->
+            <div class="view-all-container" *ngIf="vehicles.length > 5">
+                <button mat-button color="primary" (click)="navigateToVehicles()" class="view-all-button">
+                    <mat-icon>visibility</mat-icon>
+                    View All Vehicles ({{ vehicles.length }})
+                </button>
+            </div>
         </mat-card-content>
     </mat-card>
 
