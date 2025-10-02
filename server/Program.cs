@@ -46,10 +46,23 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAngularApp", policy =>
     {
-        policy.WithOrigins("http://localhost:4200")
+        policy.WithOrigins(
+                "http://localhost:4200",
+                "https://localhost:4200",
+                "https://sdv-border-control-client.vercel.app",
+                "https://*.vercel.app"
+              )
               .AllowAnyHeader()
               .AllowAnyMethod()
               .AllowCredentials();
+    });
+    
+    // More permissive policy for development
+    options.AddPolicy("AllowAll", policy =>
+    {
+        policy.AllowAnyOrigin()
+              .AllowAnyHeader()
+              .AllowAnyMethod();
     });
 });
 
@@ -65,7 +78,15 @@ if (app.Environment.IsDevelopment())
     });
 }
 
-app.UseCors("AllowAngularApp");
+// Use appropriate CORS policy based on environment
+if (app.Environment.IsDevelopment())
+{
+    app.UseCors("AllowAll");
+}
+else
+{
+    app.UseCors("AllowAngularApp");
+}
 
 app.UseRouting();
 
