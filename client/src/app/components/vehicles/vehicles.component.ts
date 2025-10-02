@@ -47,14 +47,16 @@ export class VehiclesComponent implements OnInit, OnDestroy {
 
   private loadVehicles(): void {
     this.isLoading = true;
+    console.log("🔄 Loading vehicles...");
     this.subscriptions.push(
       this.apiService.getVehicles().subscribe({
         next: (vehicles) => {
+          console.log("✅ Vehicles loaded successfully:", vehicles);
           this.vehicles = vehicles;
           this.isLoading = false;
         },
         error: (error) => {
-          console.error("Error loading vehicles:", error);
+          console.error("❌ Error loading vehicles:", error);
           this.loadMockVehicles();
           this.isLoading = false;
         },

@@ -17,7 +17,7 @@ import { Alert, AlertRequest } from "../models/alert.model";
   providedIn: "root",
 })
 export class ApiService {
-  private readonly baseUrl = "http://localhost:5001/api";
+  private readonly baseUrl = "/api";
 
   constructor(private http: HttpClient) {}
 
