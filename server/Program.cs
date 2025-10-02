@@ -56,7 +56,7 @@ builder.Services.AddCors(options =>
               .AllowAnyMethod()
               .AllowCredentials();
     });
-    
+
     // More permissive policy for development
     options.AddPolicy("AllowAll", policy =>
     {
