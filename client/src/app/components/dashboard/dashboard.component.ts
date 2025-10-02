@@ -194,7 +194,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
         })
       );
     } catch (error) {
-      console.warn("WebSocket connection failed, continuing without real-time updates:", error);
+      console.warn(
+        "WebSocket connection failed, continuing without real-time updates:",
+        error
+      );
     }
   }
 
@@ -213,7 +216,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   getMissionStatusClass(status: any): string {
     // Handle both string and numeric status values
-    const statusStr = typeof status === 'string' ? status : String(status);
+    const statusStr = typeof status === "string" ? status : String(status);
     switch (statusStr.toLowerCase()) {
       case "active":
       case "1":

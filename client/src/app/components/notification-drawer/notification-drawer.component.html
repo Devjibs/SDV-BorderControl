@@ -1,0 +1,80 @@
+<div class="notification-drawer">
+    <!-- Header -->
+    <div class="notification-header">
+        <div class="header-content">
+            <h2>Notifications</h2>
+            <div class="filter-tabs">
+                <button *ngFor="let filter of ['All', 'Critical', 'High', 'Medium', 'Low', 'Unread']"
+                    [class.active]="selectedFilter === filter" (click)="onFilterChange(filter)" class="filter-tab">
+                    {{ filter }}
+                </button>
+            </div>
+        </div>
+        <button mat-icon-button (click)="close()" class="close-button">
+            <mat-icon>close</mat-icon>
+        </button>
+    </div>
+
+    <!-- Content -->
+    <div class="notification-content">
+        <!-- Loading State -->
+        <div *ngIf="isLoading" class="loading-state">
+            <mat-spinner diameter="40"></mat-spinner>
+            <p>Loading notifications...</p>
+        </div>
+
+        <!-- Empty State -->
+        <div *ngIf="!isLoading && filteredAlerts.length === 0" class="empty-state">
+            <mat-icon>notifications_none</mat-icon>
+            <h3>No notifications</h3>
+            <p>You're all caught up!</p>
+        </div>
+
+        <!-- Notifications List -->
+        <div *ngIf="!isLoading && filteredAlerts.length > 0" class="notifications-list">
+            <div *ngFor="let alert of filteredAlerts; trackBy: trackByAlertId" class="notification-item"
+                [class.unread]="isAlertOpen(alert)">
+
+                <!-- Alert Icon -->
+                <div class="alert-icon" [style.background-color]="getSeverityColor(alert.severity)">
+                    <mat-icon [style.color]="'white'">{{ getSeverityIcon(alert.severity) }}</mat-icon>
+                </div>
+
+                <!-- Alert Content -->
+                <div class="alert-content">
+                    <div class="alert-header">
+                        <h4 class="alert-type">{{ alert.type }}</h4>
+                        <span class="alert-time">{{ getTimeAgo(alert.timestamp) }}</span>
+                    </div>
+                    <p class="alert-message">{{ alert.message }}</p>
+                    <div class="alert-meta">
+                        <span class="vehicle-id">Vehicle: {{ alert.vehicleId }}</span>
+                        <span class="alert-severity" [style.color]="getSeverityColor(alert.severity)">
+                            {{ alert.severity }}
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Alert Actions -->
+                <div class="alert-actions">
+                    <button *ngIf="isAlertOpen(alert)" mat-icon-button (click)="acknowledgeAlert(alert)"
+                        matTooltip="Acknowledge" class="action-button acknowledge">
+                        <mat-icon>check</mat-icon>
+                    </button>
+                    <button mat-icon-button (click)="dismissAlert(alert)" matTooltip="Dismiss"
+                        class="action-button dismiss">
+                        <mat-icon>close</mat-icon>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="notification-footer" *ngIf="!isLoading && filteredAlerts.length > 0">
+        <div class="footer-stats">
+            <span>{{ filteredAlerts.length }} notification{{ filteredAlerts.length !== 1 ? 's' : '' }}</span>
+            <span *ngIf="unreadCount > 0" class="unread-count">{{ unreadCount }} unread</span>
+        </div>
+    </div>
+</div>

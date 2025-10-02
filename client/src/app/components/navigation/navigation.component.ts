@@ -1,8 +1,10 @@
 import { Component, OnInit, AfterViewInit } from "@angular/core";
 import { MatSidenav } from "@angular/material/sidenav";
+import { MatDialog } from "@angular/material/dialog";
 import { ViewChild } from "@angular/core";
 import { ApiService } from "../../services/api.service";
 import { Alert, AlertSeverity, AlertStatus } from "../../models/alert.model";
+import { NotificationDrawerComponent } from "../notification-drawer/notification-drawer.component";
 import { Observable } from "rxjs";
 
 @Component({
@@ -15,7 +17,7 @@ export class NavigationComponent implements OnInit, AfterViewInit {
   unreadAlertsCount = 0;
   recentAlerts: Alert[] = [];
 
-  constructor(private apiService: ApiService) {}
+  constructor(private apiService: ApiService, private dialog: MatDialog) {}
 
   ngOnInit(): void {
     this.loadAlerts();
@@ -104,17 +106,21 @@ export class NavigationComponent implements OnInit, AfterViewInit {
   }
 
   onNotificationClick(): void {
-    // Navigate to alerts page or show notification panel
-    console.log("Notification clicked - showing recent alerts");
+    console.log("Notification clicked - opening notification drawer");
 
-    // Show a simple alert with recent alerts info
-    const alertInfo =
-      this.recentAlerts.length > 0
-        ? `Recent alerts: ${this.recentAlerts.map((a) => a.type).join(", ")}`
-        : "No recent alerts";
+    const dialogRef = this.dialog.open(NotificationDrawerComponent, {
+      width: "500px",
+      maxWidth: "90vw",
+      maxHeight: "80vh",
+      panelClass: "notification-dialog",
+      disableClose: false,
+      autoFocus: false,
+    });
 
-    alert(
-      `🔔 Notifications\n\nUnread alerts: ${this.unreadAlertsCount}\n${alertInfo}`
-    );
+    dialogRef.afterClosed().subscribe((result) => {
+      console.log("Notification drawer closed");
+      // Refresh alerts count after drawer is closed
+      this.loadAlerts();
+    });
   }
 }
