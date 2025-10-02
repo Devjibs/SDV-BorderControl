@@ -269,21 +269,21 @@ export class AnalyticsComponent implements OnInit, OnDestroy {
 
   formatNumber(value: number | undefined, decimals: number = 1): string {
     if (value === undefined || value === null || isNaN(value)) {
-      return '0';
+      return "0";
     }
     return value.toFixed(decimals);
   }
 
   formatPercentage(value: number | undefined): string {
     if (value === undefined || value === null || isNaN(value)) {
-      return '0.0%';
+      return "0.0%";
     }
     return `${value.toFixed(1)}%`;
   }
 
   formatDuration(hours: number | undefined): string {
     if (hours === undefined || hours === null || isNaN(hours)) {
-      return '0h';
+      return "0h";
     }
     if (hours < 1) return `${Math.round(hours * 60)}m`;
     if (hours < 24) return `${hours.toFixed(1)}h`;
