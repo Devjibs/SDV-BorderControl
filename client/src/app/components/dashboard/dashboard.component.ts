@@ -52,10 +52,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
     // Load missions
     this.subscriptions.push(
-      this.apiService.getMissions().subscribe({
-        next: (missions) => {
-          console.log("Missions loaded:", missions);
-          this.missions = missions.slice(0, 5); // Show latest 5 missions
+      this.apiService.getMissions(1, 10).subscribe({
+        next: (response) => {
+          console.log("Missions loaded:", response.missions);
+          this.missions = response.missions.slice(0, 5); // Show latest 5 missions
           this.updateAnalytics();
         },
         error: (error) => {

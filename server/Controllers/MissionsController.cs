@@ -18,15 +18,29 @@ public class MissionsController : ControllerBase
     }
 
     /// <summary>
-    /// Get all missions
+    /// Get all missions with optional pagination
     /// </summary>
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<Mission>>> GetMissions()
+    public async Task<ActionResult<IEnumerable<Mission>>> GetMissions([FromQuery] int page = 1, [FromQuery] int pageSize = 10)
     {
         try
         {
             var missions = await _missionService.GetAllMissionsAsync();
-            return Ok(missions);
+
+            // Apply pagination
+            var totalCount = missions.Count();
+            var paginatedMissions = missions
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToList();
+
+            // Add pagination headers
+            Response.Headers.Add("X-Total-Count", totalCount.ToString());
+            Response.Headers.Add("X-Page", page.ToString());
+            Response.Headers.Add("X-Page-Size", pageSize.ToString());
+            Response.Headers.Add("X-Total-Pages", Math.Ceiling((double)totalCount / pageSize).ToString());
+
+            return Ok(paginatedMissions);
         }
         catch (Exception ex)
         {

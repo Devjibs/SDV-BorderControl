@@ -1,6 +1,6 @@
 import { Injectable } from "@angular/core";
 import { HttpClient } from "@angular/common/http";
-import { Observable, timeout, catchError, of } from "rxjs";
+import { Observable, timeout, catchError, of, map } from "rxjs";
 import {
   Mission,
   CreateMissionRequest,
@@ -22,8 +22,33 @@ export class ApiService {
   constructor(private http: HttpClient) {}
 
   // Mission endpoints
-  getMissions(): Observable<Mission[]> {
-    return this.http.get<Mission[]>(`${this.baseUrl}/missions`);
+  getMissions(
+    page: number = 1,
+    pageSize: number = 10
+  ): Observable<{
+    missions: Mission[];
+    totalCount: number;
+    totalPages: number;
+  }> {
+    console.log(
+      "API Service: Getting missions from",
+      `${this.baseUrl}/missions`
+    );
+    return this.http.get<Mission[]>(`${this.baseUrl}/missions`).pipe(
+      timeout(5000), // 5 second timeout
+      map((missions) => {
+        console.log("API Service: Received missions:", missions);
+        return {
+          missions: missions || [],
+          totalCount: missions ? missions.length : 0,
+          totalPages: 1,
+        };
+      }),
+      catchError((error) => {
+        console.error("API Service: Error getting missions:", error);
+        return of({ missions: [], totalCount: 0, totalPages: 1 }); // Return empty data on error
+      })
+    );
   }
 
   getMission(id: string): Observable<Mission> {

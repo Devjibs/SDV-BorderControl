@@ -9,3 +9,4 @@ namespace SDV.BorderControl.API.Services
         Task<bool> ShouldGenerateAlertsForVehicleAsync(string vehicleId);
     }
 }
+

@@ -14,7 +14,7 @@ export class WebSocketService {
 
   constructor() {
     this.hubConnection = new HubConnectionBuilder()
-      .withUrl("http://localhost:5001/telemetryHub")
+      .withUrl("/telemetryHub")
       .build();
 
     this.startConnection();

@@ -71,7 +71,7 @@
         <button mat-button (click)="onCancel()" [disabled]="isLoading">
             Cancel
         </button>
-        <button mat-raised-button color="primary" (click)="onSubmit()" [disabled]="missionForm.invalid || isLoading">
+        <button mat-raised-button color="primary" type="submit" [disabled]="missionForm.invalid || isLoading">
             {{ isEditMode ? 'Update Mission' : 'Create Mission' }}
         </button>
     </mat-dialog-actions>

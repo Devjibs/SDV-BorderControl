@@ -41,6 +41,9 @@ import { VehiclesComponent } from "./components/vehicles/vehicles.component";
 import { VehicleFormComponent } from "./components/vehicle-form/vehicle-form.component";
 import { AlertsManagementComponent } from "./components/alerts-management/alerts-management.component";
 import { AnalyticsComponent } from "./components/analytics/analytics.component";
+import { MissionManagerComponent } from "./components/mission-manager/mission-manager.component";
+import { MissionManagerDebugComponent } from "./components/mission-manager/mission-manager-debug.component";
+import { MissionManagerSimpleComponent } from "./components/mission-manager/mission-manager-simple.component";
 
 @NgModule({
   declarations: [
@@ -57,6 +60,9 @@ import { AnalyticsComponent } from "./components/analytics/analytics.component";
     VehicleFormComponent,
     AlertsManagementComponent,
     AnalyticsComponent,
+    MissionManagerComponent,
+    MissionManagerDebugComponent,
+    MissionManagerSimpleComponent,
   ],
   imports: [
     BrowserModule,

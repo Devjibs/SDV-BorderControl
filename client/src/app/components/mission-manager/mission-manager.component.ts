@@ -11,20 +11,14 @@ import { MissionFormComponent } from "../mission-form/mission-form.component";
 import { Subscription } from "rxjs";
 
 @Component({
-  selector: "app-missions",
-  templateUrl: "./missions.component.html",
-  styleUrls: ["./missions.component.scss"],
+  selector: "app-mission-manager",
+  templateUrl: "./mission-manager.component.html",
+  styleUrls: ["./mission-manager.component.scss"],
 })
-export class MissionsComponent implements OnInit, OnDestroy {
+export class MissionManagerComponent implements OnInit, OnDestroy {
   missions: Mission[] = [];
-  paginatedMissions: Mission[] = [];
   isLoading = true;
-
-  // Pagination
-  currentPage = 1;
-  pageSize = 6;
-  totalPages = 0;
-  totalItems = 0;
+  error: string | null = null;
 
   displayedColumns: string[] = [
     "name",
@@ -53,34 +47,25 @@ export class MissionsComponent implements OnInit, OnDestroy {
 
   private loadMissions(): void {
     this.isLoading = true;
+    this.error = null;
 
-    // Load missions with pagination
+    // Use the simple getMissions without pagination parameters
     this.subscriptions.push(
-      this.apiService.getMissions(this.currentPage, this.pageSize).subscribe({
+      this.apiService.getMissions().subscribe({
         next: (response) => {
           console.log("Missions loaded:", response);
           this.missions = response.missions || [];
-          this.paginatedMissions = this.missions;
-          this.totalItems = response.totalCount;
-          this.totalPages = response.totalPages;
           this.isLoading = false;
         },
         error: (error) => {
           console.error("Error loading missions:", error);
+          this.error = "Failed to load missions. Please try again.";
           this.missions = [];
-          this.paginatedMissions = [];
-          this.totalItems = 0;
-          this.totalPages = 1;
           this.isLoading = false;
-          // Show error message
-          this.snackBar.open(
-            "Error loading missions. Please try again.",
-            "Close",
-            {
-              duration: 5000,
-              panelClass: ["error-snackbar"],
-            }
-          );
+          this.snackBar.open("Error loading missions", "Close", {
+            duration: 5000,
+            panelClass: ["error-snackbar"],
+          });
         },
       })
     );
@@ -126,9 +111,7 @@ export class MissionsComponent implements OnInit, OnDestroy {
             duration: 3000,
             panelClass: ["success-snackbar"],
           });
-          // Add the new mission to the existing list instead of reloading
           this.missions.unshift(mission);
-          this.paginatedMissions = this.missions;
         },
         error: (error) => {
           console.error("Error creating mission:", error);
@@ -153,13 +136,11 @@ export class MissionsComponent implements OnInit, OnDestroy {
             duration: 3000,
             panelClass: ["success-snackbar"],
           });
-          // Update the mission in the existing list instead of reloading
           const index = this.missions.findIndex(
             (m) => m.missionId === missionId
           );
           if (index !== -1) {
             this.missions[index] = mission;
-            this.paginatedMissions = this.missions;
           }
         },
         error: (error) => {
@@ -186,11 +167,9 @@ export class MissionsComponent implements OnInit, OnDestroy {
               duration: 3000,
               panelClass: ["success-snackbar"],
             });
-            // Remove the mission from the existing list instead of reloading
             this.missions = this.missions.filter(
               (m) => m.missionId !== mission.missionId
             );
-            this.paginatedMissions = this.missions;
           },
           error: (error) => {
             console.error("Error deleting mission:", error);
@@ -208,17 +187,16 @@ export class MissionsComponent implements OnInit, OnDestroy {
     }
   }
 
-  updateMissionStatus(mission: Mission, status: string): void {
+  updateMissionStatus(mission: Mission, event: any): void {
+    const status = event.target ? event.target.value : event;
     this.subscriptions.push(
       this.apiService.updateMissionStatus(mission.missionId, status).subscribe({
-        next: () => {
-          // Update locally for immediate feedback
+        next: (updatedMission) => {
           const index = this.missions.findIndex(
             (m) => m.missionId === mission.missionId
           );
           if (index !== -1) {
-            this.missions[index].status = status;
-            this.updatePagination();
+            this.missions[index] = updatedMission;
           }
           this.snackBar.open("Mission status updated successfully!", "Close", {
             duration: 3000,
@@ -268,61 +246,16 @@ export class MissionsComponent implements OnInit, OnDestroy {
     ];
   }
 
-  // Pagination methods
-  private updatePagination(): void {
+  refreshMissions(): void {
+    this.loadMissions();
+  }
+
+  formatDate(dateString: string): string {
     try {
-      if (!this.missions) {
-        this.missions = [];
-      }
-
-      // For server-side pagination, we just set the paginated missions to the current page data
-      this.paginatedMissions = this.missions;
-
-      // Note: totalItems and totalPages will be updated from server response headers
-      // For now, we'll use the current page data length as a fallback
-      this.totalItems = this.missions.length;
-      this.totalPages = Math.max(1, Math.ceil(this.totalItems / this.pageSize));
+      const date = new Date(dateString);
+      return date.toLocaleDateString() + " " + date.toLocaleTimeString();
     } catch (error) {
-      console.error("Error in updatePagination:", error);
-      this.paginatedMissions = this.missions || [];
+      return dateString;
     }
-  }
-
-  onPageChange(page: number): void {
-    if (page >= 1 && page <= this.totalPages) {
-      this.currentPage = page;
-      this.loadMissions(); // Reload data from server for new page
-    }
-  }
-
-  getPageNumbers(): number[] {
-    const pages: number[] = [];
-    const maxVisiblePages = 5;
-    let startPage = Math.max(
-      1,
-      this.currentPage - Math.floor(maxVisiblePages / 2)
-    );
-    let endPage = Math.min(this.totalPages, startPage + maxVisiblePages - 1);
-
-    // Adjust startPage if we're at the end of the total pages
-    if (endPage - startPage + 1 < maxVisiblePages) {
-      startPage = Math.max(1, endPage - maxVisiblePages + 1);
-    }
-
-    for (let i = startPage; i <= endPage; i++) {
-      pages.push(i);
-    }
-
-    return pages;
-  }
-
-  getStartItem(): number {
-    if (this.totalItems === 0) return 0;
-    return (this.currentPage - 1) * this.pageSize + 1;
-  }
-
-  getEndItem(): number {
-    if (this.totalItems === 0) return 0;
-    return Math.min(this.currentPage * this.pageSize, this.totalItems);
   }
 }

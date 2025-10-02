@@ -118,7 +118,7 @@ export class MissionFormComponent implements OnInit {
   }
 
   onSubmit(): void {
-    if (this.missionForm.valid) {
+    if (this.missionForm.valid && !this.isLoading) {
       this.isLoading = true;
 
       if (this.isEditMode) {
@@ -126,7 +126,7 @@ export class MissionFormComponent implements OnInit {
       } else {
         this.createMission();
       }
-    } else {
+    } else if (!this.isLoading) {
       this.markFormGroupTouched();
       this.snackBar.open(
         "Please fill in all required fields correctly.",
@@ -150,6 +150,7 @@ export class MissionFormComponent implements OnInit {
 
     this.apiService.createMission(createRequest).subscribe({
       next: (mission) => {
+        this.isLoading = false;
         this.snackBar.open("Mission created successfully!", "Close", {
           duration: 3000,
           panelClass: ["success-snackbar"],
@@ -187,6 +188,7 @@ export class MissionFormComponent implements OnInit {
       .updateMission(this.data.mission.missionId, updateRequest)
       .subscribe({
         next: (mission) => {
+          this.isLoading = false;
           this.snackBar.open("Mission updated successfully!", "Close", {
             duration: 3000,
             panelClass: ["success-snackbar"],
