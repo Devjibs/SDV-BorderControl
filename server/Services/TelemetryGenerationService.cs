@@ -28,7 +28,7 @@ public class TelemetryGenerationService : BackgroundService
                 var telemetryService = scope.ServiceProvider.GetRequiredService<ITelemetryService>();
 
                 var vehicles = await vehicleService.GetVehiclesAsync();
-                
+
                 foreach (var vehicle in vehicles)
                 {
                     if (string.IsNullOrEmpty(vehicle.VehicleId))
@@ -37,7 +37,7 @@ public class TelemetryGenerationService : BackgroundService
                     // Generate telemetry data for this vehicle
                     var telemetryData = GenerateTelemetryData(vehicle.VehicleId);
                     await telemetryService.AddTelemetryBatchAsync(new List<TelemetryData> { telemetryData }, vehicle.VehicleId);
-                    
+
                     _logger.LogDebug("Generated telemetry for vehicle {VehicleId}", vehicle.VehicleId);
                 }
 
@@ -57,7 +57,7 @@ public class TelemetryGenerationService : BackgroundService
         // Generate realistic telemetry data
         var baseLat = 40.7128; // New York area
         var baseLng = -74.0060;
-        
+
         return new TelemetryData
         {
             Timestamp = DateTime.UtcNow.ToString("O"),

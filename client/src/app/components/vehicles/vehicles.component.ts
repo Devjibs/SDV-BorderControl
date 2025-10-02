@@ -82,7 +82,10 @@ export class VehiclesComponent implements OnInit, OnDestroy {
           this.apiService.getLatestTelemetry(vehicle.vehicleId).subscribe({
             next: (telemetry) => {
               vehicle.lastTelemetry = telemetry;
-              console.log(`📊 Telemetry loaded for ${vehicle.name}:`, telemetry);
+              console.log(
+                `📊 Telemetry loaded for ${vehicle.name}:`,
+                telemetry
+              );
             },
             error: (error) => {
               console.warn(`⚠️ No telemetry data for ${vehicle.name}:`, error);
@@ -93,7 +96,6 @@ export class VehiclesComponent implements OnInit, OnDestroy {
       }
     });
   }
-
 
   openCreateVehicleDialog(): void {
     const dialogRef = this.dialog.open(VehicleFormComponent, {
