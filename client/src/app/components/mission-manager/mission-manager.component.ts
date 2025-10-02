@@ -88,6 +88,7 @@ export class MissionManagerComponent implements OnInit, OnDestroy {
   }
 
   openEditMissionDialog(mission: Mission): void {
+    console.log("Opening edit dialog for mission:", mission);
     const dialogRef = this.dialog.open(MissionFormComponent, {
       width: "600px",
       disableClose: true,
@@ -96,8 +97,12 @@ export class MissionManagerComponent implements OnInit, OnDestroy {
 
     this.subscriptions.push(
       dialogRef.afterClosed().subscribe((result: UpdateMissionRequest) => {
+        console.log("Dialog closed with result:", result);
         if (result) {
+          console.log("Updating mission with result:", result);
           this.updateMission(mission.missionId, result);
+        } else {
+          console.log("No result from dialog, mission not updated");
         }
       })
     );
@@ -129,9 +134,19 @@ export class MissionManagerComponent implements OnInit, OnDestroy {
   }
 
   updateMission(missionId: string, updateRequest: UpdateMissionRequest): void {
+    console.log(
+      "Mission manager: Updating mission",
+      missionId,
+      "with request:",
+      updateRequest
+    );
     this.subscriptions.push(
       this.apiService.updateMission(missionId, updateRequest).subscribe({
         next: (mission) => {
+          console.log(
+            "Mission manager: Mission updated successfully:",
+            mission
+          );
           this.snackBar.open("Mission updated successfully!", "Close", {
             duration: 3000,
             panelClass: ["success-snackbar"],
@@ -141,10 +156,11 @@ export class MissionManagerComponent implements OnInit, OnDestroy {
           );
           if (index !== -1) {
             this.missions[index] = mission;
+            console.log("Mission manager: Updated mission in local array");
           }
         },
         error: (error) => {
-          console.error("Error updating mission:", error);
+          console.error("Mission manager: Error updating mission:", error);
           this.snackBar.open(
             "Error updating mission. Please try again.",
             "Close",
