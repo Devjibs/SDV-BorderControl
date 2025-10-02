@@ -118,15 +118,8 @@ export class MissionFormComponent implements OnInit {
   }
 
   onSubmit(): void {
-    console.log("Form submission triggered");
-    console.log("Form valid:", this.missionForm.valid);
-    console.log("Form value:", this.missionForm.value);
-    console.log("Is loading:", this.isLoading);
-    console.log("Is edit mode:", this.isEditMode);
-
     if (this.missionForm.valid && !this.isLoading) {
       this.isLoading = true;
-      console.log("Proceeding with mission update/create");
 
       if (this.isEditMode) {
         this.updateMission();
@@ -134,7 +127,6 @@ export class MissionFormComponent implements OnInit {
         this.createMission();
       }
     } else if (!this.isLoading) {
-      console.log("Form validation failed");
       this.markFormGroupTouched();
       this.snackBar.open(
         "Please fill in all required fields correctly.",
@@ -182,13 +174,10 @@ export class MissionFormComponent implements OnInit {
 
   private updateMission(): void {
     if (!this.data.mission) {
-      console.error("No mission data available for update");
       return;
     }
 
     const formData = this.missionForm.value;
-    console.log("Updating mission with data:", formData);
-
     const updateRequest: UpdateMissionRequest = {
       name: formData.name,
       startTime: new Date(formData.startTime).toISOString(),
@@ -197,14 +186,10 @@ export class MissionFormComponent implements OnInit {
       status: formData.status,
     };
 
-    console.log("Update request:", updateRequest);
-    console.log("Mission ID:", this.data.mission.missionId);
-
     this.apiService
       .updateMission(this.data.mission.missionId, updateRequest)
       .subscribe({
         next: (mission) => {
-          console.log("Mission updated successfully:", mission);
           this.isLoading = false;
           this.snackBar.open("Mission updated successfully!", "Close", {
             duration: 3000,
@@ -213,7 +198,6 @@ export class MissionFormComponent implements OnInit {
           this.dialogRef.close(mission);
         },
         error: (error) => {
-          console.error("Error updating mission:", error);
           this.snackBar.open(
             "Error updating mission. Please try again.",
             "Close",

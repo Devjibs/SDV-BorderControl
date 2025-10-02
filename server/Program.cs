@@ -1,60 +1,71 @@
 using Microsoft.EntityFrameworkCore;
-using SDV.BorderControl.API.Data;
-using SDV.BorderControl.API.Services;
+using Microsoft.OpenApi.Models;
+using SDV.BorderControl.API.Application.Mappings;
+using SDV.BorderControl.API.Application.Services;
+using SDV.BorderControl.API.Core.Interfaces;
+using SDV.BorderControl.API.Infrastructure.Data;
+using SDV.BorderControl.API.Infrastructure.Repositories;
 using SDV.BorderControl.API.Hubs;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container
-builder.Services.AddControllers()
-    .AddJsonOptions(options =>
-    {
-        options.JsonSerializerOptions.Converters.Add(new System.Text.Json.Serialization.JsonStringEnumConverter());
-    });
+builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new OpenApiInfo
+    {
+        Title = "SDV Border Control API",
+        Version = "v1",
+        Description = "A comprehensive Software-Defined Vehicle platform for border control operations",
+        Contact = new OpenApiContact
+        {
+            Name = "SDV Border Control Team",
+            Email = "support@sdv-bordercontrol.com"
+        }
+    });
 
-// Add Entity Framework
+    c.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, "SDV.BorderControl.API.xml"));
+});
+
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// Add services
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IMissionService, MissionService>();
-builder.Services.AddScoped<ITelemetryService, TelemetryService>();
-builder.Services.AddScoped<IAlertService, AlertService>();
 builder.Services.AddScoped<IVehicleService, VehicleService>();
-builder.Services.AddSingleton<IAlertGenerationService, AlertGenerationService>();
-builder.Services.AddHostedService<TelemetryGenerationService>();
+builder.Services.AddScoped<IAlertService, AlertService>();
+builder.Services.AddScoped<ITelemetryService, TelemetryService>();
+builder.Services.AddScoped<IAlertGenerationService, AlertGenerationService>();
 
-// Add SignalR
+builder.Services.AddAutoMapper(typeof(MappingProfile));
+
 builder.Services.AddSignalR();
 
-// Add CORS
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowAll", policy =>
+    options.AddPolicy("AllowAngularApp", policy =>
     {
-        policy.WithOrigins("http://localhost:4200", "http://localhost:4201")
-              .AllowAnyMethod()
+        policy.WithOrigins("http://localhost:4200")
               .AllowAnyHeader()
+              .AllowAnyMethod()
               .AllowCredentials();
     });
 });
 
-// Add logging
-builder.Services.AddLogging();
-
 var app = builder.Build();
 
-// Configure the HTTP request pipeline
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseSwaggerUI(c =>
+    {
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "SDV Border Control API v1");
+        c.RoutePrefix = "swagger";
+    });
 }
 
-app.UseHttpsRedirection();
-app.UseCors("AllowAll");
+app.UseCors("AllowAngularApp");
 
 app.UseRouting();
 
@@ -63,16 +74,10 @@ app.UseAuthorization();
 app.MapControllers();
 app.MapHub<TelemetryHub>("/telemetryHub");
 
-// Ensure database is created
 using (var scope = app.Services.CreateScope())
 {
     var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
     context.Database.EnsureCreated();
-
-    // Start alert generation service
-    var alertGenerationService = scope.ServiceProvider.GetRequiredService<IAlertGenerationService>();
-    await alertGenerationService.StartAlertGenerationAsync();
 }
 
-app.Run("http://localhost:5001");
-
+app.Run();

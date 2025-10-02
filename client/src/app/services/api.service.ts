@@ -30,14 +30,9 @@ export class ApiService {
     totalCount: number;
     totalPages: number;
   }> {
-    console.log(
-      "API Service: Getting missions from",
-      `${this.baseUrl}/missions`
-    );
     return this.http.get<Mission[]>(`${this.baseUrl}/missions`).pipe(
-      timeout(5000), // 5 second timeout
+      timeout(5000),
       map((missions) => {
-        console.log("API Service: Received missions:", missions);
         return {
           missions: missions || [],
           totalCount: missions ? missions.length : 0,
@@ -45,8 +40,7 @@ export class ApiService {
         };
       }),
       catchError((error) => {
-        console.error("API Service: Error getting missions:", error);
-        return of({ missions: [], totalCount: 0, totalPages: 1 }); // Return empty data on error
+        return of({ missions: [], totalCount: 0, totalPages: 1 });
       })
     );
   }
