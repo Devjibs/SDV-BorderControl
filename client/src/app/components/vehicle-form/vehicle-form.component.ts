@@ -60,7 +60,7 @@ export class VehicleFormComponent implements OnInit {
     if (this.vehicleForm.valid) {
       const formValue = this.vehicleForm.value;
       const vehicle: Vehicle = {
-        vehicleId: this.isEditMode ? this.data.vehicle!.vehicleId : "",
+        vehicleId: this.isEditMode ? this.data.vehicle!.vehicleId : "", // Let backend generate ID for new vehicles
         name: formValue.name,
         type: formValue.type,
         status: formValue.status,

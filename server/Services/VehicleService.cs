@@ -70,7 +70,7 @@ namespace SDV.BorderControl.API.Services
             {
                 var vehicle = new Vehicle
                 {
-                    VehicleId = request.VehicleId ?? $"vehicle_{DateTime.UtcNow.Ticks}",
+                    VehicleId = string.IsNullOrEmpty(request.VehicleId) ? $"vehicle_{DateTime.UtcNow.Ticks}" : request.VehicleId,
                     Name = request.Name,
                     Type = Enum.Parse<VehicleType>(request.Type),
                     Status = Enum.Parse<VehicleStatus>(request.Status),

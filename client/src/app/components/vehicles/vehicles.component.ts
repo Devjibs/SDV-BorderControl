@@ -18,6 +18,7 @@ import { Subscription } from "rxjs";
 })
 export class VehiclesComponent implements OnInit, OnDestroy {
   vehicles: Vehicle[] = [];
+  paginatedVehicles: Vehicle[] = [];
   isLoading = true;
   displayedColumns: string[] = [
     "image",
@@ -28,6 +29,12 @@ export class VehiclesComponent implements OnInit, OnDestroy {
     "telemetry",
     "actions",
   ];
+
+  // Pagination
+  currentPage = 1;
+  pageSize = 6;
+  totalPages = 0;
+  totalItems = 0;
 
   private subscriptions: Subscription[] = [];
 
@@ -54,6 +61,7 @@ export class VehiclesComponent implements OnInit, OnDestroy {
         next: (vehicles) => {
           console.log("✅ Vehicles loaded successfully:", vehicles);
           this.vehicles = vehicles;
+          this.updatePagination();
           this.isLoading = false;
         },
         error: (error) => {
@@ -141,6 +149,19 @@ export class VehiclesComponent implements OnInit, OnDestroy {
   }
 
   private updateVehicle(vehicle: Vehicle): void {
+    // Validate that vehicleId is not empty
+    if (!vehicle.vehicleId || vehicle.vehicleId.trim() === "") {
+      this.snackBar.open(
+        "Cannot update vehicle: Invalid vehicle ID. Please refresh the page and try again.",
+        "Close",
+        {
+          duration: 5000,
+          panelClass: ["error-snackbar"],
+        }
+      );
+      return;
+    }
+
     this.subscriptions.push(
       this.apiService.updateVehicle(vehicle.vehicleId, vehicle).subscribe({
         next: (updatedVehicle) => {
@@ -181,6 +202,7 @@ export class VehiclesComponent implements OnInit, OnDestroy {
             this.vehicles = this.vehicles.filter(
               (v) => v.vehicleId !== vehicle.vehicleId
             );
+            this.updatePagination();
             this.snackBar.open("Vehicle deleted successfully!", "Close", {
               duration: 3000,
               panelClass: ["success-snackbar"],
@@ -212,28 +234,55 @@ export class VehiclesComponent implements OnInit, OnDestroy {
     }
   }
 
+  updatePagination(): void {
+    this.totalItems = this.vehicles.length;
+    this.totalPages = Math.ceil(this.totalItems / this.pageSize);
+
+    const startIndex = (this.currentPage - 1) * this.pageSize;
+    const endIndex = startIndex + this.pageSize;
+    this.paginatedVehicles = this.vehicles.slice(startIndex, endIndex);
+
+    console.log("📊 Pagination updated:", {
+      totalItems: this.totalItems,
+      totalPages: this.totalPages,
+      currentPage: this.currentPage,
+      pageSize: this.pageSize,
+      paginatedCount: this.paginatedVehicles.length,
+    });
+  }
+
+  onPageChange(page: number): void {
+    this.currentPage = page;
+    this.updatePagination();
+  }
+
+  getPageNumbers(): number[] {
+    const pages: number[] = [];
+    const maxVisiblePages = 5;
+    const startPage = Math.max(
+      1,
+      this.currentPage - Math.floor(maxVisiblePages / 2)
+    );
+    const endPage = Math.min(this.totalPages, startPage + maxVisiblePages - 1);
+
+    for (let i = startPage; i <= endPage; i++) {
+      pages.push(i);
+    }
+    return pages;
+  }
+
+  getEndItem(): number {
+    return Math.min(this.currentPage * this.pageSize, this.totalItems);
+  }
+
   getVehicleImage(vehicle: Vehicle): string {
-    // Use custom image URL if provided
-    if (vehicle.imageUrl) {
+    // Use custom image URL if provided and not empty
+    if (vehicle.imageUrl && vehicle.imageUrl.trim() !== "") {
       return vehicle.imageUrl;
     }
 
-    // Fallback to default images by type
-    const imageMap: { [key in VehicleType]: string } = {
-      [VehicleType.Patrol]:
-        "https://images.pexels.com/photos/1008738/pexels-photo-1008738.jpeg",
-      [VehicleType.Surveillance]:
-        "https://images.pexels.com/photos/14589919/pexels-photo-14589919.jpeg",
-      [VehicleType.Emergency]:
-        "https://images.pexels.com/photos/31129031/pexels-photo-31129031.jpeg",
-      [VehicleType.Transport]:
-        "https://images.pexels.com/photos/139334/pexels-photo-139334.jpeg",
-    };
-
-    return (
-      imageMap[vehicle.type] ||
-      "https://images.pexels.com/photos/248697/pexels-photo-248697.jpeg"
-    );
+    // Return a "no photo" placeholder when no image is provided
+    return "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgdmlld0JveD0iMCAwIDEwMCAxMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiBmaWxsPSIjRjVGNUY1Ii8+CjxjaXJjbGUgY3g9IjUwIiBjeT0iNDAiIHI9IjE1IiBmaWxsPSIjQ0NDQ0NDIi8+CjxwYXRoIGQ9Ik0zNSA2NUw0NSA1NUw1NSA2NUw2NSA1NUw3NSA2NVY4MEgzNVY2NVoiIGZpbGw9IiNDQ0NDQ0MiLz4KPHN2ZyB4PSI0MCIgeT0iNzAiIHdpZHRoPSIyMCIgaGVpZ2h0PSIyMCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSIjOTk5OTk5Ij4KPHBhdGggZD0iTTEyIDJMMTMuMDkgOC4yNkwyMCA5TDEzLjA5IDE1Ljc0TDEyIDIyTDEwLjkxIDE1Ljc0TDQgOUwxMC45MSA4LjI2TDEyIDJaTTEyIDZMMTAuNzQgMTAuNzRMMTYgMTJMMTAuNzQgMTMuMjZMMTIgMThMMTMuMjYgMTMuMjZMMTggMTJMMTMuMjYgMTAuNzRMMTIgNloiLz4KPC9zdmc+Cjwvc3ZnPgo=";
   }
 
   getStatusClass(status: VehicleStatus): string {
@@ -276,5 +325,9 @@ export class VehiclesComponent implements OnInit, OnDestroy {
       { value: VehicleStatus.Alert, label: "Alert" },
       { value: VehicleStatus.Maintenance, label: "Maintenance" },
     ];
+  }
+
+  canEditVehicle(vehicle: Vehicle): boolean {
+    return !!(vehicle.vehicleId && vehicle.vehicleId.trim() !== "");
   }
 }

@@ -17,7 +17,7 @@
     <div *ngIf="!isLoading" class="vehicles-content">
         <mat-card>
             <mat-card-content>
-                <table mat-table [dataSource]="vehicles" class="vehicles-table">
+                <table mat-table [dataSource]="paginatedVehicles" class="vehicles-table">
                     <!-- Vehicle Image Column -->
                     <ng-container matColumnDef="image">
                         <th mat-header-cell *matHeaderCellDef>Vehicle</th>
@@ -94,7 +94,8 @@
                                     <mat-icon>visibility</mat-icon>
                                 </button>
                                 <button mat-icon-button (click)="openEditVehicleDialog(vehicle)"
-                                    matTooltip="Edit Vehicle">
+                                    [matTooltip]="canEditVehicle(vehicle) ? 'Edit Vehicle' : 'Cannot edit: Invalid vehicle ID'"
+                                    [disabled]="!canEditVehicle(vehicle)">
                                     <mat-icon>edit</mat-icon>
                                 </button>
                                 <button mat-icon-button (click)="deleteVehicle(vehicle)" matTooltip="Delete Vehicle"
@@ -108,6 +109,27 @@
                     <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
                     <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
                 </table>
+
+                <!-- Pagination Controls -->
+                <div class="pagination-container" *ngIf="totalPages > 1">
+                    <div class="pagination-info">
+                        Showing {{ (currentPage - 1) * pageSize + 1 }} to {{ getEndItem() }} of {{ totalItems }}
+                        vehicles
+                    </div>
+                    <div class="pagination-controls">
+                        <button mat-icon-button (click)="onPageChange(currentPage - 1)" [disabled]="currentPage === 1">
+                            <mat-icon>chevron_left</mat-icon>
+                        </button>
+                        <button *ngFor="let page of getPageNumbers()" mat-button [class.active]="page === currentPage"
+                            (click)="onPageChange(page)" class="page-button">
+                            {{ page }}
+                        </button>
+                        <button mat-icon-button (click)="onPageChange(currentPage + 1)"
+                            [disabled]="currentPage === totalPages">
+                            <mat-icon>chevron_right</mat-icon>
+                        </button>
+                    </div>
+                </div>
 
                 <!-- Empty State -->
                 <div *ngIf="vehicles.length === 0" class="empty-state">
