@@ -125,8 +125,19 @@ namespace SDV.BorderControl.API.Services
         {
             try
             {
-                var vehicle = await _context.Vehicles
-                    .FirstOrDefaultAsync(v => v.VehicleId == vehicleId);
+                Vehicle? vehicle;
+                
+                // Handle empty vehicleId by looking for vehicles with empty VehicleId
+                if (string.IsNullOrEmpty(vehicleId))
+                {
+                    vehicle = await _context.Vehicles
+                        .FirstOrDefaultAsync(v => string.IsNullOrEmpty(v.VehicleId));
+                }
+                else
+                {
+                    vehicle = await _context.Vehicles
+                        .FirstOrDefaultAsync(v => v.VehicleId == vehicleId);
+                }
 
                 if (vehicle == null)
                 {
@@ -136,7 +147,7 @@ namespace SDV.BorderControl.API.Services
                 _context.Vehicles.Remove(vehicle);
                 await _context.SaveChangesAsync();
 
-                _logger.LogInformation("Deleted vehicle {VehicleId}", vehicleId);
+                _logger.LogInformation("Deleted vehicle {VehicleId} (Name: {Name})", vehicleId, vehicle.Name);
                 return true;
             }
             catch (Exception ex)

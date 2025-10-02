@@ -118,5 +118,24 @@ namespace SDV.BorderControl.API.Controllers
                 return StatusCode(500, "Internal server error");
             }
         }
+
+        [HttpDelete("empty")]
+        public async Task<ActionResult> DeleteVehicleWithEmptyId()
+        {
+            try
+            {
+                var result = await _vehicleService.DeleteVehicleAsync("");
+                if (!result)
+                {
+                    return NotFound();
+                }
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error deleting vehicle with empty ID");
+                return StatusCode(500, "Internal server error");
+            }
+        }
     }
 }
