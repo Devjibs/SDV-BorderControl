@@ -1,0 +1,57 @@
+.mission-form-container {
+  min-width: 500px;
+  max-width: 600px;
+
+  h2 {
+    margin: 0 0 20px 0;
+    color: #1976d2;
+    font-weight: 300;
+  }
+}
+
+.mission-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 16px 0;
+
+  .full-width {
+    width: 100%;
+  }
+
+  mat-form-field {
+    .mat-mdc-form-field-infix {
+      min-height: 48px;
+    }
+  }
+}
+
+.loading-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 20px;
+  color: #666;
+
+  span {
+    font-size: 14px;
+  }
+}
+
+mat-dialog-actions {
+  padding: 16px 0 0 0;
+  margin: 0;
+
+  button {
+    margin-left: 8px;
+  }
+}
+
+// Responsive design
+@media (max-width: 768px) {
+  .mission-form-container {
+    min-width: 300px;
+    max-width: 90vw;
+  }
+}

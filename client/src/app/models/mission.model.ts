@@ -4,7 +4,7 @@ export interface Mission {
   startTime: string;
   endTime: string;
   vehicleIds: string[];
-  status: MissionStatus;
+  status: string; // Changed from MissionStatus to string to match API response
   createdAt: string;
   updatedAt?: string;
 }
@@ -28,6 +28,5 @@ export interface UpdateMissionRequest {
   startTime: string;
   endTime: string;
   vehicleIds: string[];
-  status: MissionStatus;
+  status: string;
 }
-

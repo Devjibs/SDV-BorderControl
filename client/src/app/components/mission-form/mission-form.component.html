@@ -1,0 +1,78 @@
+<div class="mission-form-container">
+    <h2 mat-dialog-title>
+        {{ isEditMode ? 'Edit Mission' : 'Create New Mission' }}
+    </h2>
+
+    <mat-dialog-content>
+        <form [formGroup]="missionForm" (ngSubmit)="onSubmit()" class="mission-form">
+            <!-- Mission Name -->
+            <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Mission Name</mat-label>
+                <input matInput formControlName="name" placeholder="Enter mission name">
+                <mat-error *ngIf="isFieldInvalid('name')">
+                    {{ getErrorMessage('name') }}
+                </mat-error>
+            </mat-form-field>
+
+            <!-- Start Time -->
+            <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Start Time</mat-label>
+                <input matInput type="datetime-local" formControlName="startTime" placeholder="Select start time">
+                <mat-error *ngIf="isFieldInvalid('startTime')">
+                    {{ getErrorMessage('startTime') }}
+                </mat-error>
+            </mat-form-field>
+
+            <!-- End Time -->
+            <mat-form-field appearance="outline" class="full-width">
+                <mat-label>End Time</mat-label>
+                <input matInput type="datetime-local" formControlName="endTime" placeholder="Select end time">
+                <mat-error *ngIf="isFieldInvalid('endTime')">
+                    {{ getErrorMessage('endTime') }}
+                </mat-error>
+            </mat-form-field>
+
+            <!-- Vehicle Selection -->
+            <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Select Vehicles</mat-label>
+                <mat-select formControlName="vehicleIds" multiple>
+                    <mat-option *ngFor="let vehicle of vehicles" [value]="vehicle.vehicleId">
+                        {{ vehicle.name }} ({{ vehicle.type }})
+                    </mat-option>
+                </mat-select>
+                <mat-error *ngIf="isFieldInvalid('vehicleIds')">
+                    {{ getErrorMessage('vehicleIds') }}
+                </mat-error>
+            </mat-form-field>
+
+            <!-- Status (only for edit mode) -->
+            <mat-form-field *ngIf="isEditMode" appearance="outline" class="full-width">
+                <mat-label>Status</mat-label>
+                <mat-select formControlName="status">
+                    <mat-option value="Pending">Pending</mat-option>
+                    <mat-option value="Active">Active</mat-option>
+                    <mat-option value="Completed">Completed</mat-option>
+                    <mat-option value="Cancelled">Cancelled</mat-option>
+                </mat-select>
+                <mat-error *ngIf="isFieldInvalid('status')">
+                    {{ getErrorMessage('status') }}
+                </mat-error>
+            </mat-form-field>
+
+            <!-- Loading State -->
+            <div *ngIf="isLoading" class="loading-container">
+                <mat-spinner diameter="30"></mat-spinner>
+                <span>{{ isEditMode ? 'Updating mission...' : 'Creating mission...' }}</span>
+            </div>
+        </form>
+    </mat-dialog-content>
+
+    <mat-dialog-actions align="end">
+        <button mat-button (click)="onCancel()" [disabled]="isLoading">
+            Cancel
+        </button>
+        <button mat-raised-button color="primary" (click)="onSubmit()" [disabled]="missionForm.invalid || isLoading">
+            {{ isEditMode ? 'Update Mission' : 'Create Mission' }}
+        </button>
+    </mat-dialog-actions>
+</div>

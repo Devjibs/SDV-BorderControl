@@ -23,13 +23,7 @@ export class ApiService {
 
   // Mission endpoints
   getMissions(): Observable<Mission[]> {
-    console.log(
-      "🌐 API Service: Making HTTP request to",
-      `${this.baseUrl}/missions`
-    );
-    const request = this.http.get<Mission[]>(`${this.baseUrl}/missions`);
-    console.log("🌐 HTTP request created, returning observable");
-    return request;
+    return this.http.get<Mission[]>(`${this.baseUrl}/missions`);
   }
 
   getMission(id: string): Observable<Mission> {

@@ -4,10 +4,10 @@ import { MatSnackBar } from "@angular/material/snack-bar";
 import { ApiService } from "../../services/api.service";
 import {
   Mission,
-  MissionStatus,
   CreateMissionRequest,
   UpdateMissionRequest,
 } from "../../models/mission.model";
+import { MissionFormComponent } from "../mission-form/mission-form.component";
 import { Subscription } from "rxjs";
 
 @Component({
@@ -71,20 +71,84 @@ export class MissionsComponent implements OnInit, OnDestroy {
   }
 
   openCreateMissionDialog(): void {
-    // For now, just show a simple message
-    this.snackBar.open("Create Mission dialog will be implemented", "Close", {
-      duration: 3000,
+    const dialogRef = this.dialog.open(MissionFormComponent, {
+      width: "600px",
+      disableClose: true,
+      data: { mode: "create" },
     });
+
+    this.subscriptions.push(
+      dialogRef.afterClosed().subscribe((result: CreateMissionRequest) => {
+        if (result) {
+          this.createMission(result);
+        }
+      })
+    );
   }
 
   openEditMissionDialog(mission: Mission): void {
-    // For now, just show a simple message
-    this.snackBar.open(
-      `Edit Mission ${mission.name} dialog will be implemented`,
-      "Close",
-      {
-        duration: 3000,
-      }
+    const dialogRef = this.dialog.open(MissionFormComponent, {
+      width: "600px",
+      disableClose: true,
+      data: { mode: "edit", mission: mission },
+    });
+
+    this.subscriptions.push(
+      dialogRef.afterClosed().subscribe((result: UpdateMissionRequest) => {
+        if (result) {
+          this.updateMission(mission.missionId, result);
+        }
+      })
+    );
+  }
+
+  createMission(createRequest: CreateMissionRequest): void {
+    this.subscriptions.push(
+      this.apiService.createMission(createRequest).subscribe({
+        next: (mission) => {
+          this.snackBar.open("Mission created successfully!", "Close", {
+            duration: 3000,
+            panelClass: ["success-snackbar"],
+          });
+          this.loadMissions();
+        },
+        error: (error) => {
+          console.error("Error creating mission:", error);
+          this.snackBar.open(
+            "Error creating mission. Please try again.",
+            "Close",
+            {
+              duration: 5000,
+              panelClass: ["error-snackbar"],
+            }
+          );
+        },
+      })
+    );
+  }
+
+  updateMission(missionId: string, updateRequest: UpdateMissionRequest): void {
+    this.subscriptions.push(
+      this.apiService.updateMission(missionId, updateRequest).subscribe({
+        next: (mission) => {
+          this.snackBar.open("Mission updated successfully!", "Close", {
+            duration: 3000,
+            panelClass: ["success-snackbar"],
+          });
+          this.loadMissions();
+        },
+        error: (error) => {
+          console.error("Error updating mission:", error);
+          this.snackBar.open(
+            "Error updating mission. Please try again.",
+            "Close",
+            {
+              duration: 5000,
+              panelClass: ["error-snackbar"],
+            }
+          );
+        },
+      })
     );
   }
 
@@ -115,7 +179,7 @@ export class MissionsComponent implements OnInit, OnDestroy {
     }
   }
 
-  updateMissionStatus(mission: Mission, status: MissionStatus): void {
+  updateMissionStatus(mission: Mission, status: string): void {
     this.subscriptions.push(
       this.apiService.updateMissionStatus(mission.missionId, status).subscribe({
         next: () => {
@@ -166,12 +230,12 @@ export class MissionsComponent implements OnInit, OnDestroy {
     }
   }
 
-  getStatusOptions(): { value: MissionStatus; label: string }[] {
+  getStatusOptions(): { value: string; label: string }[] {
     return [
-      { value: MissionStatus.Pending, label: "Pending" },
-      { value: MissionStatus.Active, label: "Active" },
-      { value: MissionStatus.Completed, label: "Completed" },
-      { value: MissionStatus.Cancelled, label: "Cancelled" },
+      { value: "Pending", label: "Pending" },
+      { value: "Active", label: "Active" },
+      { value: "Completed", label: "Completed" },
+      { value: "Cancelled", label: "Cancelled" },
     ];
   }
 
