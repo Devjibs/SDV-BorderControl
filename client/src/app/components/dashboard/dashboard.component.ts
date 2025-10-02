@@ -33,6 +33,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
+    console.log("Dashboard component initialized");
     this.loadDashboardData();
     this.setupWebSocketConnections();
     this.startRealTimeSimulation();
@@ -43,12 +44,14 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   private loadDashboardData(): void {
+    console.log("Loading dashboard data...");
     this.isLoading = true;
 
     // Load missions
     this.subscriptions.push(
       this.apiService.getMissions().subscribe({
         next: (missions) => {
+          console.log("Missions loaded:", missions);
           this.missions = missions.slice(0, 5); // Show latest 5 missions
           this.updateAnalytics();
         },
@@ -61,15 +64,22 @@ export class DashboardComponent implements OnInit, OnDestroy {
     );
 
     // Load active alerts
+    console.log("Attempting to load active alerts...");
     this.subscriptions.push(
       this.apiService.getActiveAlerts().subscribe({
         next: (alerts) => {
-          this.activeAlerts = alerts.slice(0, 10); // Show latest 10 alerts
+          console.log("Raw alerts from API:", alerts);
+          // Map API data to frontend format
+          this.activeAlerts = alerts
+            .slice(0, 10)
+            .map((alert) => this.mapAlertFromApi(alert));
+          console.log("Mapped alerts for display:", this.activeAlerts);
           this.updateAnalytics();
           this.isLoading = false;
         },
         error: (error) => {
           console.error("Error loading alerts:", error);
+          console.log("Loading mock alerts as fallback...");
           // Load mock alerts if API fails
           this.loadMockAlerts();
           this.isLoading = false;
@@ -159,29 +169,33 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   private setupWebSocketConnections(): void {
-    // Join dashboard group for real-time updates
-    this.webSocketService.joinDashboardGroup();
+    try {
+      // Join dashboard group for real-time updates
+      this.webSocketService.joinDashboardGroup();
 
-    // Subscribe to telemetry updates
-    this.subscriptions.push(
-      this.webSocketService.getTelemetryUpdates().subscribe((telemetry) => {
-        if (telemetry) {
-          this.updateVehiclePosition(telemetry);
-        }
-      })
-    );
+      // Subscribe to telemetry updates
+      this.subscriptions.push(
+        this.webSocketService.getTelemetryUpdates().subscribe((telemetry) => {
+          if (telemetry) {
+            this.updateVehiclePosition(telemetry);
+          }
+        })
+      );
 
-    // Subscribe to alert updates
-    this.subscriptions.push(
-      this.webSocketService.getAlertUpdates().subscribe((alert) => {
-        if (alert) {
-          this.activeAlerts.unshift(alert);
-          this.activeAlerts = this.activeAlerts.slice(0, 10); // Keep only latest 10
-          this.showAlertNotification(alert);
-          this.updateAnalytics();
-        }
-      })
-    );
+      // Subscribe to alert updates
+      this.subscriptions.push(
+        this.webSocketService.getAlertUpdates().subscribe((alert) => {
+          if (alert) {
+            this.activeAlerts.unshift(alert);
+            this.activeAlerts = this.activeAlerts.slice(0, 10); // Keep only latest 10
+            this.showAlertNotification(alert);
+            this.updateAnalytics();
+          }
+        })
+      );
+    } catch (error) {
+      console.warn("WebSocket connection failed, continuing without real-time updates:", error);
+    }
   }
 
   private updateVehiclePosition(telemetry: TelemetryRecord): void {
@@ -197,15 +211,21 @@ export class DashboardComponent implements OnInit, OnDestroy {
     }
   }
 
-  getMissionStatusClass(status: string): string {
-    switch (status.toLowerCase()) {
+  getMissionStatusClass(status: any): string {
+    // Handle both string and numeric status values
+    const statusStr = typeof status === 'string' ? status : String(status);
+    switch (statusStr.toLowerCase()) {
       case "active":
+      case "1":
         return "status-badge active";
       case "pending":
+      case "0":
         return "status-badge pending";
       case "completed":
+      case "2":
         return "status-badge completed";
       case "cancelled":
+      case "3":
         return "status-badge cancelled";
       default:
         return "status-badge";
@@ -277,6 +297,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   private loadMockAlerts(): void {
+    console.log("Loading mock alerts...");
     // Load mock alerts if API is not available
     this.activeAlerts = [
       {
@@ -310,6 +331,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
         additionalData: {},
       },
     ];
+    console.log("Mock alerts loaded:", this.activeAlerts);
     this.updateAnalytics();
   }
 
@@ -423,5 +445,50 @@ export class DashboardComponent implements OnInit, OnDestroy {
       horizontalPosition: "right",
       verticalPosition: "top",
     });
+  }
+
+  isAlertOpen(alert: Alert): boolean {
+    return (
+      alert.status === AlertStatus.Open ||
+      (alert.status as any) === "Open" ||
+      (alert.status as any) === "0" ||
+      (alert.status as any) === 0
+    );
+  }
+
+  private mapAlertFromApi(apiAlert: any): Alert {
+    // Map severity from number to string
+    const severityMap = {
+      0: AlertSeverity.Low,
+      1: AlertSeverity.Medium,
+      2: AlertSeverity.High,
+      3: AlertSeverity.Critical,
+    };
+
+    // Map status from number to string
+    const statusMap = {
+      0: AlertStatus.Open,
+      1: AlertStatus.Acknowledged,
+      2: AlertStatus.Resolved,
+    };
+
+    return {
+      id: apiAlert.id,
+      vehicleId: apiAlert.vehicleId,
+      type: apiAlert.type,
+      message: apiAlert.message,
+      severity:
+        severityMap[apiAlert.severity as keyof typeof severityMap] ||
+        AlertSeverity.Medium,
+      timestamp: apiAlert.timestamp,
+      status:
+        statusMap[apiAlert.status as keyof typeof statusMap] ||
+        AlertStatus.Open,
+      acknowledgedAt: apiAlert.acknowledgedAt,
+      acknowledgedBy: apiAlert.acknowledgedBy,
+      resolvedAt: apiAlert.resolvedAt,
+      resolvedBy: apiAlert.resolvedBy,
+      additionalData: apiAlert.additionalData || {},
+    };
   }
 }

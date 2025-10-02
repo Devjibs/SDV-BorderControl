@@ -61,10 +61,49 @@
   .analytics-grid {
     grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
   }
+  
+  .alert-card {
+    .alert-content {
+      height: 300px; /* Smaller height on mobile */
+    }
+  }
 }
 
 .mission-card, .alert-card, .map-card, .vehicle-card {
   margin-bottom: 20px;
+}
+
+.alert-card {
+  .alert-content {
+    height: 400px;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .alert-list {
+    flex: 1;
+    overflow-y: auto;
+    padding-right: 8px;
+    
+    /* Custom scrollbar styling */
+    &::-webkit-scrollbar {
+      width: 6px;
+    }
+    
+    &::-webkit-scrollbar-track {
+      background: #f1f1f1;
+      border-radius: 3px;
+    }
+    
+    &::-webkit-scrollbar-thumb {
+      background: #c1c1c1;
+      border-radius: 3px;
+      
+      &:hover {
+        background: #a8a8a8;
+      }
+    }
+  }
 }
 
 .mission-item {
@@ -95,16 +134,26 @@
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  padding: 12px;
-  margin-bottom: 8px;
-  border-radius: 4px;
-  background-color: #f5f5f5;
-  border-left: 4px solid #e0e0e0;
+  padding: 16px;
+  margin-bottom: 12px;
+  border-radius: 8px;
+  background-color: #ffffff;
+  border: 1px solid #e0e0e0;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  transition: all 0.2s ease;
+  
+  &:hover {
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    transform: translateY(-1px);
+  }
 }
 
-.no-alerts {
-  text-align: center;
-  padding: 20px;
+.loading-alerts, .no-alerts {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
   color: #4caf50;
   
   mat-icon {
@@ -117,6 +166,14 @@
   p {
     margin: 0;
     font-size: 1.1rem;
+  }
+}
+
+.loading-alerts {
+  color: #666;
+  
+  p {
+    margin-top: 10px;
   }
 }
 
@@ -261,20 +318,40 @@
 .alert-critical {
   background-color: #ffebee;
   border-left: 4px solid #d32f2f;
+  
+  .alert-severity {
+    background-color: #d32f2f;
+    color: white;
+  }
 }
 
 .alert-high {
   background-color: #fff3e0;
   border-left: 4px solid #f57c00;
+  
+  .alert-severity {
+    background-color: #f57c00;
+    color: white;
+  }
 }
 
 .alert-medium {
   background-color: #fff8e1;
   border-left: 4px solid #ffa000;
+  
+  .alert-severity {
+    background-color: #ffa000;
+    color: white;
+  }
 }
 
 .alert-low {
   background-color: #e8f5e8;
   border-left: 4px solid #4caf50;
+  
+  .alert-severity {
+    background-color: #4caf50;
+    color: white;
+  }
 }
 
