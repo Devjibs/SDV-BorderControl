@@ -32,6 +32,7 @@ export interface Vehicle {
   lastSeen?: string;
   lastTelemetry?: TelemetryRecord;
   activeAlerts: Alert[];
+  imageUrl?: string;
 }
 
 export enum VehicleType {

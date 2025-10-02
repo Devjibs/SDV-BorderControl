@@ -40,6 +40,10 @@ export class VehicleFormComponent implements OnInit {
       name: ["", [Validators.required, Validators.minLength(2)]],
       type: [VehicleType.Patrol, Validators.required],
       status: [VehicleStatus.Online, Validators.required],
+      imageUrl: [
+        "",
+        [Validators.pattern(/^https?:\/\/.+\.(jpg|jpeg|png|gif|webp)$/i)],
+      ],
     });
 
     if (this.isEditMode && this.data.vehicle) {
@@ -47,6 +51,7 @@ export class VehicleFormComponent implements OnInit {
         name: this.data.vehicle.name,
         type: this.data.vehicle.type,
         status: this.data.vehicle.status,
+        imageUrl: this.data.vehicle.imageUrl || "",
       });
     }
   }
@@ -66,6 +71,7 @@ export class VehicleFormComponent implements OnInit {
           ? this.data.vehicle!.lastTelemetry
           : undefined,
         activeAlerts: this.isEditMode ? this.data.vehicle!.activeAlerts : [],
+        imageUrl: formValue.imageUrl || "",
       };
 
       this.dialogRef.close(vehicle);

@@ -19,7 +19,7 @@
     <div *ngIf="!isLoading" class="alerts-content">
         <mat-card>
             <mat-card-content>
-                <table mat-table [dataSource]="filteredAlerts" class="alerts-table">
+                <table mat-table [dataSource]="paginatedAlerts" class="alerts-table">
                     <!-- ID Column -->
                     <ng-container matColumnDef="id">
                         <th mat-header-cell *matHeaderCellDef>ID</th>
@@ -103,6 +103,26 @@
                     <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
                     <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
                 </table>
+
+                <!-- Pagination -->
+                <div *ngIf="!isLoading && filteredAlerts.length > 0" class="pagination-container">
+                    <div class="pagination-info">
+                        Showing {{ (currentPage - 1) * pageSize + 1 }} to {{ getEndItem() }} of {{ totalItems }} alerts
+                    </div>
+                    <div class="pagination-controls">
+                        <button mat-icon-button (click)="onPageChange(currentPage - 1)" [disabled]="currentPage === 1">
+                            <mat-icon>chevron_left</mat-icon>
+                        </button>
+                        <button *ngFor="let page of getPageNumbers()" mat-button [class.active]="page === currentPage"
+                            (click)="onPageChange(page)" class="page-button">
+                            {{ page }}
+                        </button>
+                        <button mat-icon-button (click)="onPageChange(currentPage + 1)"
+                            [disabled]="currentPage === totalPages">
+                            <mat-icon>chevron_right</mat-icon>
+                        </button>
+                    </div>
+                </div>
 
                 <!-- Empty State -->
                 <div *ngIf="filteredAlerts.length === 0" class="empty-state">

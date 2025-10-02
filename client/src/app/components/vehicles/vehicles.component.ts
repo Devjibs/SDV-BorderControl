@@ -266,6 +266,12 @@ export class VehiclesComponent implements OnInit, OnDestroy {
   }
 
   getVehicleImage(vehicle: Vehicle): string {
+    // Use custom image URL if provided
+    if (vehicle.imageUrl) {
+      return vehicle.imageUrl;
+    }
+
+    // Fallback to default images by type
     const imageMap: { [key in VehicleType]: string } = {
       [VehicleType.Patrol]:
         "https://images.pexels.com/photos/1008738/pexels-photo-1008738.jpeg",

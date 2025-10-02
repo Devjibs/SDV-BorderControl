@@ -13,8 +13,16 @@ import { Subscription } from "rxjs";
 export class AlertsManagementComponent implements OnInit, OnDestroy {
   alerts: Alert[] = [];
   filteredAlerts: Alert[] = [];
+  paginatedAlerts: Alert[] = [];
   isLoading = true;
   selectedFilter: string = "All";
+
+  // Pagination
+  currentPage = 1;
+  pageSize = 20;
+  totalPages = 0;
+  totalItems = 0;
+
   displayedColumns: string[] = [
     "id",
     "vehicleId",
@@ -49,6 +57,7 @@ export class AlertsManagementComponent implements OnInit, OnDestroy {
         next: (alerts) => {
           this.alerts = alerts.map((alert) => this.mapAlertFromApi(alert));
           this.filteredAlerts = this.alerts;
+          this.updatePagination();
           this.isLoading = false;
         },
         error: (error) => {
@@ -142,6 +151,7 @@ export class AlertsManagementComponent implements OnInit, OnDestroy {
       },
     ];
     this.filteredAlerts = this.alerts;
+    this.updatePagination();
   }
 
   onFilterChange(filter: string): void {
@@ -177,6 +187,41 @@ export class AlertsManagementComponent implements OnInit, OnDestroy {
         );
         break;
     }
+    this.currentPage = 1;
+    this.updatePagination();
+  }
+
+  updatePagination(): void {
+    this.totalItems = this.filteredAlerts.length;
+    this.totalPages = Math.ceil(this.totalItems / this.pageSize);
+
+    const startIndex = (this.currentPage - 1) * this.pageSize;
+    const endIndex = startIndex + this.pageSize;
+    this.paginatedAlerts = this.filteredAlerts.slice(startIndex, endIndex);
+  }
+
+  onPageChange(page: number): void {
+    this.currentPage = page;
+    this.updatePagination();
+  }
+
+  getPageNumbers(): number[] {
+    const pages: number[] = [];
+    const maxVisiblePages = 5;
+    const startPage = Math.max(
+      1,
+      this.currentPage - Math.floor(maxVisiblePages / 2)
+    );
+    const endPage = Math.min(this.totalPages, startPage + maxVisiblePages - 1);
+
+    for (let i = startPage; i <= endPage; i++) {
+      pages.push(i);
+    }
+    return pages;
+  }
+
+  getEndItem(): number {
+    return Math.min(this.currentPage * this.pageSize, this.totalItems);
   }
 
   acknowledgeAlert(alert: Alert): void {

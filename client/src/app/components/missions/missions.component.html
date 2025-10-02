@@ -40,21 +40,29 @@
                 <ng-container matColumnDef="actions">
                     <th mat-header-cell *matHeaderCellDef>Actions</th>
                     <td mat-cell *matCellDef="let mission">
-                        <button mat-icon-button (click)="openEditMissionDialog(mission)" matTooltip="Edit Mission">
-                            <mat-icon>edit</mat-icon>
-                        </button>
-                        <button mat-icon-button (click)="deleteMission(mission)" matTooltip="Delete Mission"
-                            color="warn">
-                            <mat-icon>delete</mat-icon>
-                        </button>
-                        <mat-form-field appearance="outline" class="status-select">
-                            <mat-select [value]="mission.status"
-                                (selectionChange)="updateMissionStatus(mission, $event.value)">
-                                <mat-option *ngFor="let option of getStatusOptions()" [value]="option.value">
-                                    {{ option.label }}
-                                </mat-option>
-                            </mat-select>
-                        </mat-form-field>
+                        <div class="mission-actions">
+                            <div class="action-buttons">
+                                <button mat-icon-button (click)="openEditMissionDialog(mission)"
+                                    matTooltip="Edit Mission">
+                                    <mat-icon>edit</mat-icon>
+                                </button>
+                                <button mat-icon-button (click)="deleteMission(mission)" matTooltip="Delete Mission"
+                                    color="warn">
+                                    <mat-icon>delete</mat-icon>
+                                </button>
+                            </div>
+                            <div class="status-update">
+                                <mat-form-field appearance="outline" class="status-select">
+                                    <mat-label>Status</mat-label>
+                                    <mat-select [value]="mission.status"
+                                        (selectionChange)="updateMissionStatus(mission, $event.value)">
+                                        <mat-option *ngFor="let option of getStatusOptions()" [value]="option.value">
+                                            {{ option.label }}
+                                        </mat-option>
+                                    </mat-select>
+                                </mat-form-field>
+                            </div>
+                        </div>
                     </td>
                 </ng-container>
 
