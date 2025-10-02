@@ -94,11 +94,30 @@
 .alert-item {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
   padding: 12px;
   margin-bottom: 8px;
   border-radius: 4px;
   background-color: #f5f5f5;
+  border-left: 4px solid #e0e0e0;
+}
+
+.no-alerts {
+  text-align: center;
+  padding: 20px;
+  color: #4caf50;
+  
+  mat-icon {
+    font-size: 3rem;
+    width: 3rem;
+    height: 3rem;
+    margin-bottom: 10px;
+  }
+  
+  p {
+    margin: 0;
+    font-size: 1.1rem;
+  }
 }
 
 .alert-info h4 {
@@ -118,12 +137,42 @@
   color: #999 !important;
 }
 
+.alert-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+}
+
 .alert-severity {
   font-size: 12px;
   font-weight: 500;
   padding: 4px 8px;
   border-radius: 12px;
   background-color: #e0e0e0;
+}
+
+.alert-buttons {
+  display: flex;
+  gap: 4px;
+  
+  button {
+    width: 32px;
+    height: 32px;
+    line-height: 32px;
+    
+    mat-icon {
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+    }
+  }
+}
+
+.alert-vehicle {
+  font-size: 11px !important;
+  color: #999 !important;
+  margin-top: 4px;
 }
 
 .data-table {

@@ -4,13 +4,14 @@
     </button>
     <span>SDV Border Control Platform</span>
     <span class="spacer"></span>
-    <button mat-icon-button>
+    <button mat-icon-button (click)="onNotificationClick()" [matBadge]="unreadAlertsCount" matBadgeColor="warn"
+        matBadgeSize="small">
         <mat-icon>notifications</mat-icon>
     </button>
 </mat-toolbar>
 
 <mat-sidenav-container class="sidenav-container">
-    <mat-sidenav #sidenav [(opened)]="isSidenavOpen" mode="side">
+    <mat-sidenav #sidenav mode="side">
         <mat-nav-list>
             <a mat-list-item routerLink="/dashboard" routerLinkActive="active">
                 <mat-icon matListItemIcon>dashboard</mat-icon>

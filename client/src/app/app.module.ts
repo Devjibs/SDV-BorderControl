@@ -24,6 +24,7 @@ import { MatDialogModule } from "@angular/material/dialog";
 import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
 import { MatTabsModule } from "@angular/material/tabs";
 import { MatExpansionModule } from "@angular/material/expansion";
+import { MatTooltipModule } from "@angular/material/tooltip";
 
 import { AppRoutingModule } from "./app-routing.module";
 import { AppComponent } from "./app.component";
@@ -73,6 +74,7 @@ import { NavigationComponent } from "./components/navigation/navigation.componen
     MatProgressSpinnerModule,
     MatTabsModule,
     MatExpansionModule,
+    MatTooltipModule,
   ],
   providers: [DatePipe],
   bootstrap: [AppComponent],

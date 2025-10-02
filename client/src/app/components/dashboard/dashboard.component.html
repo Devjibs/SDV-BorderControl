@@ -76,14 +76,30 @@
                 <mat-card-title>Active Alerts</mat-card-title>
             </mat-card-header>
             <mat-card-content>
+                <div *ngIf="activeAlerts.length === 0 && !isLoading" class="no-alerts">
+                    <mat-icon>check_circle</mat-icon>
+                    <p>No active alerts</p>
+                </div>
                 <div *ngFor="let alert of activeAlerts" class="alert-item"
                     [class]="getAlertSeverityClass(alert.severity)">
                     <div class="alert-info">
                         <h4>{{ alert.type }}</h4>
                         <p>{{ alert.message }}</p>
                         <p class="alert-time">{{ alert.timestamp | date:'short' }}</p>
+                        <p class="alert-vehicle">Vehicle: {{ alert.vehicleId }}</p>
                     </div>
-                    <span class="alert-severity">{{ alert.severity }}</span>
+                    <div class="alert-actions">
+                        <span class="alert-severity">{{ alert.severity }}</span>
+                        <div class="alert-buttons">
+                            <button mat-icon-button (click)="acknowledgeAlert(alert)" matTooltip="Acknowledge Alert"
+                                *ngIf="alert.status === 'Open'">
+                                <mat-icon>check</mat-icon>
+                            </button>
+                            <button mat-icon-button (click)="dismissAlert(alert)" matTooltip="Dismiss Alert">
+                                <mat-icon>close</mat-icon>
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </mat-card-content>
         </mat-card>
@@ -154,7 +170,8 @@
                 </ng-container>
 
                 <tr mat-header-row *matHeaderRowDef="['image', 'status', 'telemetry', 'lastSeen', 'actions']"></tr>
-                <tr mat-row *matRowDef="let row; columns: ['image', 'status', 'telemetry', 'lastSeen', 'actions'];"></tr>
+                <tr mat-row *matRowDef="let row; columns: ['image', 'status', 'telemetry', 'lastSeen', 'actions'];">
+                </tr>
             </table>
         </mat-card-content>
     </mat-card>

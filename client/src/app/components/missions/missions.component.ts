@@ -1,7 +1,13 @@
 import { Component, OnInit, OnDestroy } from "@angular/core";
 import { MatDialog } from "@angular/material/dialog";
+import { MatSnackBar } from "@angular/material/snack-bar";
 import { ApiService } from "../../services/api.service";
-import { Mission, MissionStatus } from "../../models/mission.model";
+import {
+  Mission,
+  MissionStatus,
+  CreateMissionRequest,
+} from "../../models/mission.model";
+import { MissionFormComponent } from "../mission-form/mission-form.component";
 import { Subscription } from "rxjs";
 
 @Component({
@@ -23,7 +29,11 @@ export class MissionsComponent implements OnInit, OnDestroy {
 
   private subscriptions: Subscription[] = [];
 
-  constructor(private apiService: ApiService, private dialog: MatDialog) {}
+  constructor(
+    private apiService: ApiService,
+    private dialog: MatDialog,
+    private snackBar: MatSnackBar
+  ) {}
 
   ngOnInit(): void {
     this.loadMissions();
@@ -50,9 +60,41 @@ export class MissionsComponent implements OnInit, OnDestroy {
   }
 
   openCreateMissionDialog(): void {
-    // This would open a dialog to create a new mission
-    // For now, we'll just log
-    console.log("Create mission dialog would open here");
+    const dialogRef = this.dialog.open(MissionFormComponent, {
+      width: "500px",
+      disableClose: true,
+    });
+
+    dialogRef.afterClosed().subscribe((result: CreateMissionRequest) => {
+      if (result) {
+        this.createMission(result);
+      }
+    });
+  }
+
+  private createMission(missionData: CreateMissionRequest): void {
+    this.subscriptions.push(
+      this.apiService.createMission(missionData).subscribe({
+        next: (mission) => {
+          this.snackBar.open("Mission created successfully!", "Close", {
+            duration: 3000,
+            panelClass: ["success-snackbar"],
+          });
+          this.loadMissions(); // Reload missions
+        },
+        error: (error) => {
+          console.error("Error creating mission:", error);
+          this.snackBar.open(
+            "Error creating mission. Please try again.",
+            "Close",
+            {
+              duration: 5000,
+              panelClass: ["error-snackbar"],
+            }
+          );
+        },
+      })
+    );
   }
 
   editMission(mission: Mission): void {
@@ -112,4 +154,3 @@ export class MissionsComponent implements OnInit, OnDestroy {
     ];
   }
 }
-

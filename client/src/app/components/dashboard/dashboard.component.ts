@@ -2,8 +2,8 @@ import { Component, OnInit, OnDestroy } from "@angular/core";
 import { MatSnackBar } from "@angular/material/snack-bar";
 import { ApiService } from "../../services/api.service";
 import { WebSocketService } from "../../services/websocket.service";
-import { Mission } from "../../models/mission.model";
-import { Alert } from "../../models/alert.model";
+import { Mission, MissionStatus } from "../../models/mission.model";
+import { Alert, AlertSeverity, AlertStatus } from "../../models/alert.model";
 import { TelemetryRecord } from "../../models/telemetry.model";
 import { Subscription } from "rxjs";
 
@@ -17,7 +17,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   activeAlerts: Alert[] = [];
   vehicles: any[] = [];
   isLoading = true;
-  
+
   // Analytics data
   totalVehicles = 0;
   onlineVehicles = 0;
@@ -35,6 +35,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.loadDashboardData();
     this.setupWebSocketConnections();
+    this.startRealTimeSimulation();
   }
 
   ngOnDestroy(): void {
@@ -49,9 +50,12 @@ export class DashboardComponent implements OnInit, OnDestroy {
       this.apiService.getMissions().subscribe({
         next: (missions) => {
           this.missions = missions.slice(0, 5); // Show latest 5 missions
+          this.updateAnalytics();
         },
         error: (error) => {
           console.error("Error loading missions:", error);
+          // Load mock missions if API fails
+          this.loadMockMissions();
         },
       })
     );
@@ -62,11 +66,13 @@ export class DashboardComponent implements OnInit, OnDestroy {
         next: (alerts) => {
           this.activeAlerts = alerts.slice(0, 10); // Show latest 10 alerts
           this.updateAnalytics();
+          this.isLoading = false;
         },
         error: (error) => {
           console.error("Error loading alerts:", error);
           // Load mock alerts if API fails
           this.loadMockAlerts();
+          this.isLoading = false;
         },
       })
     );
@@ -74,8 +80,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
     // Load vehicles (mock data for now)
     this.loadVehicles();
     this.updateAnalytics();
-
-    this.isLoading = false;
   }
 
   private loadVehicles(): void {
@@ -88,11 +92,12 @@ export class DashboardComponent implements OnInit, OnDestroy {
         status: "Online",
         lastSeen: new Date().toISOString(),
         position: { lat: 40.7128, lng: -74.006 },
-        image: "https://images.pexels.com/photos/1008738/pexels-photo-1008738.jpeg",
+        image:
+          "https://images.pexels.com/photos/1008738/pexels-photo-1008738.jpeg",
         speed: 45,
         temperature: 25,
         fuelLevel: 85,
-        batteryLevel: 92
+        batteryLevel: 92,
       },
       {
         vehicleId: "vehicle_002",
@@ -101,11 +106,12 @@ export class DashboardComponent implements OnInit, OnDestroy {
         status: "OnMission",
         lastSeen: new Date().toISOString(),
         position: { lat: 40.7589, lng: -73.9851 },
-        image: "https://images.pexels.com/photos/248697/pexels-photo-248697.jpeg",
+        image:
+          "https://images.pexels.com/photos/248697/pexels-photo-248697.jpeg",
         speed: 38,
         temperature: 26,
         fuelLevel: 72,
-        batteryLevel: 88
+        batteryLevel: 88,
       },
       {
         vehicleId: "vehicle_003",
@@ -114,11 +120,12 @@ export class DashboardComponent implements OnInit, OnDestroy {
         status: "Online",
         lastSeen: new Date().toISOString(),
         position: { lat: 40.6892, lng: -74.0445 },
-        image: "https://images.pexels.com/photos/14589919/pexels-photo-14589919.jpeg",
+        image:
+          "https://images.pexels.com/photos/14589919/pexels-photo-14589919.jpeg",
         speed: 0,
         temperature: 24,
         fuelLevel: 95,
-        batteryLevel: 78
+        batteryLevel: 78,
       },
       {
         vehicleId: "vehicle_004",
@@ -127,11 +134,12 @@ export class DashboardComponent implements OnInit, OnDestroy {
         status: "Alert",
         lastSeen: new Date().toISOString(),
         position: { lat: 40.7505, lng: -73.9934 },
-        image: "https://images.pexels.com/photos/31129031/pexels-photo-31129031.jpeg",
+        image:
+          "https://images.pexels.com/photos/31129031/pexels-photo-31129031.jpeg",
         speed: 65,
         temperature: 28,
         fuelLevel: 45,
-        batteryLevel: 65
+        batteryLevel: 65,
       },
       {
         vehicleId: "vehicle_005",
@@ -140,12 +148,13 @@ export class DashboardComponent implements OnInit, OnDestroy {
         status: "Online",
         lastSeen: new Date().toISOString(),
         position: { lat: 40.6782, lng: -73.9442 },
-        image: "https://images.pexels.com/photos/139334/pexels-photo-139334.jpeg",
+        image:
+          "https://images.pexels.com/photos/139334/pexels-photo-139334.jpeg",
         speed: 32,
         temperature: 23,
         fuelLevel: 88,
-        batteryLevel: 91
-      }
+        batteryLevel: 91,
+      },
     ];
   }
 
@@ -233,6 +242,40 @@ export class DashboardComponent implements OnInit, OnDestroy {
     }
   }
 
+  private loadMockMissions(): void {
+    // Load mock missions if API is not available
+    this.missions = [
+      {
+        missionId: "mission_001",
+        name: "Border Patrol - Sector A",
+        startTime: new Date().toISOString(),
+        endTime: new Date(Date.now() + 3600000).toISOString(),
+        vehicleIds: ["vehicle_001", "vehicle_002"],
+        status: MissionStatus.Active,
+        createdAt: new Date(Date.now() - 3600000).toISOString(),
+      },
+      {
+        missionId: "mission_002",
+        name: "Surveillance Operation - North Zone",
+        startTime: new Date(Date.now() - 1800000).toISOString(),
+        endTime: new Date(Date.now() + 1800000).toISOString(),
+        vehicleIds: ["vehicle_003"],
+        status: MissionStatus.Active,
+        createdAt: new Date(Date.now() - 7200000).toISOString(),
+      },
+      {
+        missionId: "mission_003",
+        name: "Emergency Response - Highway 95",
+        startTime: new Date(Date.now() - 7200000).toISOString(),
+        endTime: new Date(Date.now() - 3600000).toISOString(),
+        vehicleIds: ["vehicle_004"],
+        status: MissionStatus.Completed,
+        createdAt: new Date(Date.now() - 14400000).toISOString(),
+      },
+    ];
+    this.updateAnalytics();
+  }
+
   private loadMockAlerts(): void {
     // Load mock alerts if API is not available
     this.activeAlerts = [
@@ -241,57 +284,62 @@ export class DashboardComponent implements OnInit, OnDestroy {
         vehicleId: "vehicle_004",
         type: "EngineFault",
         message: "Engine temperature critical - 95°C",
-        severity: "Critical",
+        severity: AlertSeverity.Critical,
         timestamp: new Date().toISOString(),
-        status: "Open"
+        status: AlertStatus.Open,
+        additionalData: {},
       },
       {
         id: 2,
         vehicleId: "vehicle_002",
         type: "FuelLow",
         message: "Fuel level low - 15% remaining",
-        severity: "High",
+        severity: AlertSeverity.High,
         timestamp: new Date(Date.now() - 300000).toISOString(),
-        status: "Open"
+        status: AlertStatus.Open,
+        additionalData: {},
       },
       {
         id: 3,
         vehicleId: "vehicle_001",
         type: "BatteryLow",
         message: "Battery level critical - 8% remaining",
-        severity: "Critical",
+        severity: AlertSeverity.Critical,
         timestamp: new Date(Date.now() - 600000).toISOString(),
-        status: "Open"
-      }
+        status: AlertStatus.Open,
+        additionalData: {},
+      },
     ];
     this.updateAnalytics();
   }
 
   private updateAnalytics(): void {
     this.totalVehicles = this.vehicles.length;
-    this.onlineVehicles = this.vehicles.filter(v => v.status === 'Online' || v.status === 'OnMission').length;
-    this.activeMissions = this.missions.filter(m => m.status === 'Active').length;
-    this.criticalAlerts = this.activeAlerts.filter(a => a.severity === 'Critical').length;
+    this.onlineVehicles = this.vehicles.filter(
+      (v) => v.status === "Online" || v.status === "OnMission"
+    ).length;
+    this.activeMissions = this.missions.filter(
+      (m) => m.status === MissionStatus.Active
+    ).length;
+    this.criticalAlerts = this.activeAlerts.filter(
+      (a) => a.severity === AlertSeverity.Critical
+    ).length;
   }
 
   private showAlertNotification(alert: Alert): void {
     const severityColors = {
-      'Critical': 'error',
-      'High': 'warn',
-      'Medium': 'accent',
-      'Low': 'primary'
+      Critical: "error",
+      High: "warn",
+      Medium: "accent",
+      Low: "primary",
     };
 
-    this.snackBar.open(
-      `🚨 ${alert.type}: ${alert.message}`,
-      'Dismiss',
-      {
-        duration: 5000,
-        panelClass: [`alert-${alert.severity.toLowerCase()}`],
-        horizontalPosition: 'right',
-        verticalPosition: 'top'
-      }
-    );
+    this.snackBar.open(`🚨 ${alert.type}: ${alert.message}`, "Dismiss", {
+      duration: 5000,
+      panelClass: [`alert-${alert.severity.toLowerCase()}`],
+      horizontalPosition: "right",
+      verticalPosition: "top",
+    });
   }
 
   // Method to simulate real-time updates
@@ -303,8 +351,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   private simulateRandomUpdates(): void {
     // Randomly update vehicle data
-    this.vehicles.forEach(vehicle => {
-      if (Math.random() < 0.3) { // 30% chance to update
+    this.vehicles.forEach((vehicle) => {
+      if (Math.random() < 0.3) {
+        // 30% chance to update
         vehicle.speed = Math.floor(Math.random() * 80);
         vehicle.temperature = 20 + Math.random() * 15;
         vehicle.fuelLevel = Math.floor(Math.random() * 100);
@@ -312,20 +361,30 @@ export class DashboardComponent implements OnInit, OnDestroy {
         vehicle.lastSeen = new Date().toISOString();
 
         // Generate random alerts
-        if (Math.random() < 0.1) { // 10% chance for alert
-          const alertTypes = ['EngineFault', 'FuelLow', 'BatteryLow', 'Overspeed', 'TemperatureHigh'];
-          const severities = ['Low', 'Medium', 'High', 'Critical'];
-          const randomType = alertTypes[Math.floor(Math.random() * alertTypes.length)];
-          const randomSeverity = severities[Math.floor(Math.random() * severities.length)];
+        if (Math.random() < 0.1) {
+          // 10% chance for alert
+          const alertTypes = [
+            "EngineFault",
+            "FuelLow",
+            "BatteryLow",
+            "Overspeed",
+            "TemperatureHigh",
+          ];
+          const severities = ["Low", "Medium", "High", "Critical"];
+          const randomType =
+            alertTypes[Math.floor(Math.random() * alertTypes.length)];
+          const randomSeverity =
+            severities[Math.floor(Math.random() * severities.length)];
 
-          const newAlert = {
+          const newAlert: Alert = {
             id: Date.now(),
             vehicleId: vehicle.vehicleId,
             type: randomType,
             message: `${randomType} detected on ${vehicle.name}`,
-            severity: randomSeverity,
+            severity: randomSeverity as AlertSeverity,
             timestamp: new Date().toISOString(),
-            status: 'Open'
+            status: AlertStatus.Open,
+            additionalData: {},
           };
 
           this.activeAlerts.unshift(newAlert);
@@ -336,5 +395,33 @@ export class DashboardComponent implements OnInit, OnDestroy {
     });
     this.updateAnalytics();
   }
-}
 
+  dismissAlert(alert: Alert): void {
+    // Remove alert from the list
+    this.activeAlerts = this.activeAlerts.filter((a) => a.id !== alert.id);
+    this.updateAnalytics();
+
+    this.snackBar.open(`Alert dismissed: ${alert.type}`, "Undo", {
+      duration: 3000,
+      horizontalPosition: "right",
+      verticalPosition: "top",
+    });
+  }
+
+  acknowledgeAlert(alert: Alert): void {
+    // Update alert status to acknowledged
+    const alertIndex = this.activeAlerts.findIndex((a) => a.id === alert.id);
+    if (alertIndex !== -1) {
+      this.activeAlerts[alertIndex].status = AlertStatus.Acknowledged;
+      this.activeAlerts[alertIndex].acknowledgedAt = new Date().toISOString();
+      this.activeAlerts[alertIndex].acknowledgedBy = "Current User";
+    }
+    this.updateAnalytics();
+
+    this.snackBar.open(`Alert acknowledged: ${alert.type}`, "Close", {
+      duration: 3000,
+      horizontalPosition: "right",
+      verticalPosition: "top",
+    });
+  }
+}
