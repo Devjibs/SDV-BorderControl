@@ -6,7 +6,11 @@ using SDV.BorderControl.API.Hubs;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.Converters.Add(new System.Text.Json.Serialization.JsonStringEnumConverter());
+    });
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
@@ -18,6 +22,8 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 builder.Services.AddScoped<IMissionService, MissionService>();
 builder.Services.AddScoped<ITelemetryService, TelemetryService>();
 builder.Services.AddScoped<IAlertService, AlertService>();
+builder.Services.AddScoped<IVehicleService, VehicleService>();
+builder.Services.AddSingleton<IAlertGenerationService, AlertGenerationService>();
 
 // Add SignalR
 builder.Services.AddSignalR();
@@ -27,9 +33,10 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAll", policy =>
     {
-        policy.AllowAnyOrigin()
+        policy.WithOrigins("http://localhost:4201")
               .AllowAnyMethod()
-              .AllowAnyHeader();
+              .AllowAnyHeader()
+              .AllowCredentials();
     });
 });
 
@@ -60,6 +67,10 @@ using (var scope = app.Services.CreateScope())
 {
     var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
     context.Database.EnsureCreated();
+
+    // Start alert generation service
+    var alertGenerationService = scope.ServiceProvider.GetRequiredService<IAlertGenerationService>();
+    await alertGenerationService.StartAlertGenerationAsync();
 }
 
 app.Run("http://localhost:5001");

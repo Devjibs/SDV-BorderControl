@@ -1,6 +1,6 @@
 import { Injectable } from "@angular/core";
 import { HttpClient } from "@angular/common/http";
-import { Observable } from "rxjs";
+import { Observable, timeout, catchError, of } from "rxjs";
 import {
   Mission,
   CreateMissionRequest,
@@ -23,7 +23,19 @@ export class ApiService {
 
   // Mission endpoints
   getMissions(): Observable<Mission[]> {
-    return this.http.get<Mission[]>(`${this.baseUrl}/missions`);
+    console.log(
+      "🌐 API Service: Making HTTP request to",
+      `${this.baseUrl}/missions`
+    );
+    const request = this.http.get<Mission[]>(`${this.baseUrl}/missions`);
+    console.log("🌐 HTTP request created, returning observable");
+    return request.pipe(
+      catchError((error) => {
+        console.error("❌ API Service: HTTP request failed:", error);
+        console.error("❌ Error details:", error);
+        return of([]); // Return empty array on error
+      })
+    );
   }
 
   getMission(id: string): Observable<Mission> {
@@ -136,5 +148,39 @@ export class ApiService {
 
   getAlertsByStatus(status: string): Observable<Alert[]> {
     return this.http.get<Alert[]>(`${this.baseUrl}/alerts/status/${status}`);
+  }
+
+  // Vehicle endpoints
+  getVehicles(): Observable<Vehicle[]> {
+    console.log(
+      "API Service: Getting vehicles from",
+      `${this.baseUrl}/vehicles`
+    );
+    return this.http.get<Vehicle[]>(`${this.baseUrl}/vehicles`).pipe(
+      timeout(5000), // 5 second timeout
+      catchError((error) => {
+        console.error("API Service: Error getting vehicles:", error);
+        return of([]); // Return empty array on error
+      })
+    );
+  }
+
+  getVehicle(vehicleId: string): Observable<Vehicle> {
+    return this.http.get<Vehicle>(`${this.baseUrl}/vehicles/${vehicleId}`);
+  }
+
+  createVehicle(vehicle: Vehicle): Observable<Vehicle> {
+    return this.http.post<Vehicle>(`${this.baseUrl}/vehicles`, vehicle);
+  }
+
+  updateVehicle(vehicleId: string, vehicle: Vehicle): Observable<Vehicle> {
+    return this.http.put<Vehicle>(
+      `${this.baseUrl}/vehicles/${vehicleId}`,
+      vehicle
+    );
+  }
+
+  deleteVehicle(vehicleId: string): Observable<void> {
+    return this.http.delete<void>(`${this.baseUrl}/vehicles/${vehicleId}`);
   }
 }

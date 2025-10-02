@@ -1,36 +1,54 @@
-namespace SDV.BorderControl.API.Models;
+using System.ComponentModel.DataAnnotations;
 
-public class Vehicle
+namespace SDV.BorderControl.API.Models
 {
-    public string VehicleId { get; set; } = string.Empty;
+    public class Vehicle
+    {
+        [Key]
+        public string VehicleId { get; set; } = string.Empty;
 
-    public string Name { get; set; } = string.Empty;
+        [Required]
+        [MaxLength(100)]
+        public string Name { get; set; } = string.Empty;
 
-    public VehicleType Type { get; set; }
+        [Required]
+        public VehicleType Type { get; set; }
 
-    public VehicleStatus Status { get; set; } = VehicleStatus.Offline;
+        [Required]
+        public VehicleStatus Status { get; set; }
 
-    public DateTime? LastSeen { get; set; }
+        public string? ImageUrl { get; set; }
 
-    public TelemetryRecord? LastTelemetry { get; set; }
+        public DateTime? LastSeen { get; set; }
 
-    public List<Alert> ActiveAlerts { get; set; } = new();
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+
+        public DateTime? UpdatedAt { get; set; }
+    }
+
+    public class CreateVehicleRequest
+    {
+        public string VehicleId { get; set; } = string.Empty;
+        public string Name { get; set; } = string.Empty;
+        public string Type { get; set; } = string.Empty;
+        public string Status { get; set; } = string.Empty;
+        public string? ImageUrl { get; set; }
+    }
+
+    public enum VehicleType
+    {
+        Patrol = 0,
+        Surveillance = 1,
+        Emergency = 2,
+        Transport = 3
+    }
+
+    public enum VehicleStatus
+    {
+        Offline = 0,
+        Online = 1,
+        OnMission = 2,
+        Maintenance = 3,
+        Alert = 4
+    }
 }
-
-public enum VehicleType
-{
-    Patrol,
-    Surveillance,
-    Emergency,
-    Transport
-}
-
-public enum VehicleStatus
-{
-    Offline,
-    Online,
-    OnMission,
-    Maintenance,
-    Alert
-}
-

@@ -1,26 +1,38 @@
 .mission-form-container {
   min-width: 500px;
+  max-width: 600px;
 }
 
-.form-row {
+.form-header {
+  margin-bottom: 24px;
+  
+  h2 {
+    margin: 0;
+    color: #1976d2;
+    font-weight: 500;
+  }
+}
+
+.mission-form {
+  .full-width {
+    width: 100%;
+    margin-bottom: 16px;
+  }
+}
+
+.form-actions {
   display: flex;
-  gap: 16px;
-  margin-bottom: 16px;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 24px;
+  padding-top: 16px;
+  border-top: 1px solid #e0e0e0;
 }
 
-.form-row .mat-form-field {
-  flex: 1;
+// Responsive design
+@media (max-width: 768px) {
+  .mission-form-container {
+    min-width: 100%;
+    max-width: 100%;
+  }
 }
-
-.full-width {
-  width: 100%;
-}
-
-mat-dialog-content {
-  padding: 20px 0;
-}
-
-mat-dialog-actions {
-  padding: 16px 0;
-}
-

@@ -30,3 +30,14 @@ mat-sidenav-content {
   min-height: calc(100vh - 64px);
 }
 
+.notification-button {
+  position: relative;
+  
+  ::ng-deep .mat-badge-content {
+    top: 4px !important;
+    right: 4px !important;
+    transform: none !important;
+    position: absolute !important;
+  }
+}
+

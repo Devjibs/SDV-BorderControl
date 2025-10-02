@@ -31,7 +31,7 @@ public class TelemetryServiceTests : IDisposable
         // Arrange
         var telemetryData = new TelemetryData
         {
-            Timestamp = DateTime.UtcNow,
+            Timestamp = DateTime.UtcNow.ToString("O"),
             Latitude = 40.7128,
             Longitude = -74.0060,
             Speed = 50.0,
@@ -59,7 +59,7 @@ public class TelemetryServiceTests : IDisposable
         {
             new TelemetryData
             {
-                Timestamp = DateTime.UtcNow,
+                Timestamp = DateTime.UtcNow.ToString("O"),
                 Latitude = 40.7128,
                 Longitude = -74.0060,
                 Speed = 50.0,
@@ -69,7 +69,7 @@ public class TelemetryServiceTests : IDisposable
             },
             new TelemetryData
             {
-                Timestamp = DateTime.UtcNow.AddSeconds(1),
+                Timestamp = DateTime.UtcNow.AddSeconds(1).ToString("O"),
                 Latitude = 40.7130,
                 Longitude = -74.0058,
                 Speed = 52.0,

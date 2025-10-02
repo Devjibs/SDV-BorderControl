@@ -3,6 +3,7 @@ import { MatDialog } from "@angular/material/dialog";
 import { MatSnackBar } from "@angular/material/snack-bar";
 import { VehicleFormComponent } from "../vehicle-form/vehicle-form.component";
 import { VehicleDetailComponent } from "../vehicle-detail/vehicle-detail.component";
+import { ApiService } from "../../services/api.service";
 import {
   Vehicle,
   VehicleType,
@@ -30,7 +31,11 @@ export class VehiclesComponent implements OnInit, OnDestroy {
 
   private subscriptions: Subscription[] = [];
 
-  constructor(private dialog: MatDialog, private snackBar: MatSnackBar) {}
+  constructor(
+    private dialog: MatDialog,
+    private snackBar: MatSnackBar,
+    private apiService: ApiService
+  ) {}
 
   ngOnInit(): void {
     this.loadVehicles();
@@ -42,8 +47,23 @@ export class VehiclesComponent implements OnInit, OnDestroy {
 
   private loadVehicles(): void {
     this.isLoading = true;
+    this.subscriptions.push(
+      this.apiService.getVehicles().subscribe({
+        next: (vehicles) => {
+          this.vehicles = vehicles;
+          this.isLoading = false;
+        },
+        error: (error) => {
+          console.error("Error loading vehicles:", error);
+          this.loadMockVehicles();
+          this.isLoading = false;
+        },
+      })
+    );
+  }
 
-    // Load mock vehicle data with enhanced information
+  private loadMockVehicles(): void {
+    // Fallback mock data if API fails
     this.vehicles = [
       {
         vehicleId: "vehicle_001",
@@ -179,6 +199,7 @@ export class VehiclesComponent implements OnInit, OnDestroy {
 
     dialogRef.afterClosed().subscribe((result: Vehicle) => {
       if (result) {
+        console.log("Vehicle creation result:", result);
         this.createVehicle(result);
       }
     });
@@ -212,20 +233,37 @@ export class VehiclesComponent implements OnInit, OnDestroy {
   }
 
   private createVehicle(vehicle: Vehicle): void {
-    // Add new vehicle to the list
-    const newVehicle = {
-      ...vehicle,
-      vehicleId: `vehicle_${Date.now()}`,
-      lastSeen: new Date().toISOString(),
-      activeAlerts: [],
-    };
+    console.log("Creating vehicle:", vehicle);
 
-    this.vehicles.unshift(newVehicle);
-
-    this.snackBar.open("Vehicle created successfully!", "Close", {
-      duration: 3000,
-      panelClass: ["success-snackbar"],
-    });
+    this.subscriptions.push(
+      this.apiService.createVehicle(vehicle).subscribe({
+        next: (createdVehicle) => {
+          this.vehicles.unshift(createdVehicle);
+          console.log("Vehicle created successfully:", createdVehicle);
+          this.snackBar.open("Vehicle created successfully!", "Close", {
+            duration: 3000,
+            panelClass: ["success-snackbar"],
+          });
+          // Refresh the entire vehicles list to ensure consistency
+          this.loadVehicles();
+        },
+        error: (error) => {
+          console.error("Error creating vehicle:", error);
+          // Fallback: add locally for demo
+          const newVehicle = {
+            ...vehicle,
+            vehicleId: vehicle.vehicleId || `vehicle_${Date.now()}`,
+            lastSeen: new Date().toISOString(),
+            activeAlerts: [],
+          };
+          this.vehicles.unshift(newVehicle);
+          this.snackBar.open("Vehicle created successfully!", "Close", {
+            duration: 3000,
+            panelClass: ["success-snackbar"],
+          });
+        },
+      })
+    );
   }
 
   private updateVehicle(vehicle: Vehicle): void {

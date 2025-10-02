@@ -12,7 +12,7 @@ public class ApplicationDbContext : DbContext
     public DbSet<Mission> Missions { get; set; }
     public DbSet<TelemetryRecord> TelemetryRecords { get; set; }
     public DbSet<Alert> Alerts { get; set; }
-    // public DbSet<Vehicle> Vehicles { get; set; } // Commented out to avoid foreign key constraints
+    public DbSet<Vehicle> Vehicles { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -59,13 +59,16 @@ public class ApplicationDbContext : DbContext
             entity.HasIndex(e => new { e.VehicleId, e.Status });
         });
 
-        // Vehicle configuration - commented out to avoid foreign key constraints
-        // modelBuilder.Entity<Vehicle>(entity =>
-        // {
-        //     entity.HasKey(e => e.VehicleId);
-        //     entity.Property(e => e.VehicleId).HasMaxLength(50);
-        //     entity.Property(e => e.Name).HasMaxLength(100).IsRequired();
-        // });
+        // Vehicle configuration
+        modelBuilder.Entity<Vehicle>(entity =>
+        {
+            entity.HasKey(e => e.VehicleId);
+            entity.Property(e => e.VehicleId).HasMaxLength(50);
+            entity.Property(e => e.Name).HasMaxLength(100).IsRequired();
+            entity.Property(e => e.Type).HasConversion<string>();
+            entity.Property(e => e.Status).HasConversion<string>();
+            entity.Property(e => e.ImageUrl).HasMaxLength(500);
+        });
     }
 }
 

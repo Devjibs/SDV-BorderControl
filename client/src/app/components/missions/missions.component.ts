@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from "@angular/core";
+import { Component, OnInit, OnDestroy, ChangeDetectorRef } from "@angular/core";
 import { MatDialog } from "@angular/material/dialog";
 import { MatSnackBar } from "@angular/material/snack-bar";
 import { ApiService } from "../../services/api.service";
@@ -33,7 +33,8 @@ export class MissionsComponent implements OnInit, OnDestroy {
   constructor(
     private apiService: ApiService,
     private dialog: MatDialog,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
@@ -45,52 +46,29 @@ export class MissionsComponent implements OnInit, OnDestroy {
   }
 
   private loadMissions(): void {
+    console.log("🔄 Starting to load missions...");
     this.isLoading = true;
-    this.subscriptions.push(
-      this.apiService.getMissions().subscribe({
-        next: (missions) => {
-          this.missions = missions;
-          this.isLoading = false;
-        },
-        error: (error) => {
-          console.error("Error loading missions:", error);
-          this.loadMockMissions();
-          this.isLoading = false;
-        },
-      })
-    );
-  }
 
-  private loadMockMissions(): void {
-    this.missions = [
-      {
-        missionId: "mission_001",
-        name: "Border Patrol - Sector A",
-        startTime: new Date().toISOString(),
-        endTime: new Date(Date.now() + 3600000).toISOString(),
-        vehicleIds: ["vehicle_001", "vehicle_002"],
-        status: MissionStatus.Active,
-        createdAt: new Date(Date.now() - 3600000).toISOString(),
+    this.apiService.getMissions().subscribe({
+      next: (missions) => {
+        console.log("✅ Missions loaded successfully:", missions);
+        this.missions = missions;
+        this.isLoading = false;
+        console.log("✅ Loading state set to false");
+        this.cdr.detectChanges(); // Force UI update
+        console.log("🔄 Change detection triggered");
       },
-      {
-        missionId: "mission_002",
-        name: "Surveillance Operation - North Zone",
-        startTime: new Date(Date.now() - 1800000).toISOString(),
-        endTime: new Date(Date.now() + 1800000).toISOString(),
-        vehicleIds: ["vehicle_003"],
-        status: MissionStatus.Active,
-        createdAt: new Date(Date.now() - 7200000).toISOString(),
+      error: (error) => {
+        console.error("❌ Error loading missions:", error);
+        this.missions = []; // Show empty state instead of mock data
+        this.isLoading = false;
+        console.log("❌ Loading state set to false (error)");
+        this.cdr.detectChanges(); // Force UI update
       },
-      {
-        missionId: "mission_003",
-        name: "Emergency Response - Highway 95",
-        startTime: new Date(Date.now() - 7200000).toISOString(),
-        endTime: new Date(Date.now() - 3600000).toISOString(),
-        vehicleIds: ["vehicle_004"],
-        status: MissionStatus.Completed,
-        createdAt: new Date(Date.now() - 14400000).toISOString(),
+      complete: () => {
+        console.log("✅ Missions API call completed");
       },
-    ];
+    });
   }
 
   openCreateMissionDialog(): void {

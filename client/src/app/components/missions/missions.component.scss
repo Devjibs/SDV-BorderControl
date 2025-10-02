@@ -2,6 +2,43 @@
   padding: 20px;
 }
 
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  gap: 16px;
+  
+  p {
+    margin: 0;
+    color: #666;
+    font-size: 14px;
+  }
+}
+
+.no-data {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  gap: 16px;
+  color: #666;
+  
+  mat-icon {
+    font-size: 48px;
+    width: 48px;
+    height: 48px;
+    color: #ccc;
+  }
+  
+  p {
+    margin: 0;
+    font-size: 16px;
+  }
+}
+
 .missions-header {
   display: flex;
   justify-content: space-between;
@@ -15,21 +52,37 @@
 
 .mission-actions {
   display: flex;
-  flex-direction: column;
-  gap: 12px;
-  align-items: flex-start;
+  flex-direction: row;
+  align-items: center;
+  gap: 16px;
+  min-width: 200px;
 
   .action-buttons {
     display: flex;
-    gap: 8px;
+    gap: 4px;
+    flex-shrink: 0;
   }
 
   .status-update {
-    width: 100%;
+    flex: 1;
+    min-width: 120px;
     
     .status-select {
       width: 100%;
-      min-width: 140px;
+      font-size: 12px;
+    }
+  }
+}
+
+// Responsive actions
+@media (max-width: 768px) {
+  .mission-actions {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+    
+    .action-buttons {
+      justify-content: center;
     }
   }
 }

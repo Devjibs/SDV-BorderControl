@@ -57,8 +57,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
         },
         error: (error) => {
           console.error("Error loading missions:", error);
-          // Load mock missions if API fails
-          this.loadMockMissions();
+          this.missions = []; // Show empty state instead of mock data
         },
       })
     );
@@ -79,21 +78,51 @@ export class DashboardComponent implements OnInit, OnDestroy {
         },
         error: (error) => {
           console.error("Error loading alerts:", error);
-          console.log("Loading mock alerts as fallback...");
-          // Load mock alerts if API fails
-          this.loadMockAlerts();
+          this.activeAlerts = []; // Show empty state instead of mock data
           this.isLoading = false;
         },
       })
     );
 
-    // Load vehicles (mock data for now)
+    // Load vehicles from API
     this.loadVehicles();
     this.updateAnalytics();
   }
 
   private loadVehicles(): void {
-    // Enhanced mock vehicle data with images and realistic data
+    this.subscriptions.push(
+      this.apiService.getVehicles().subscribe({
+        next: (vehicles) => {
+          // Convert API vehicles to dashboard format
+          this.vehicles = vehicles.map((vehicle) => ({
+            vehicleId: vehicle.vehicleId,
+            name: vehicle.name,
+            type: vehicle.type,
+            status: vehicle.status,
+            lastSeen: vehicle.lastSeen || new Date().toISOString(),
+            position: {
+              lat: 40.7128 + (Math.random() - 0.5) * 0.1,
+              lng: -74.006 + (Math.random() - 0.5) * 0.1,
+            },
+            image:
+              vehicle.imageUrl || this.getDefaultVehicleImage(vehicle.type),
+            speed: Math.floor(Math.random() * 80),
+            temperature: 20 + Math.random() * 15,
+            fuelLevel: Math.floor(Math.random() * 100),
+            batteryLevel: Math.floor(Math.random() * 100),
+          }));
+          this.updateAnalytics();
+        },
+        error: (error) => {
+          console.error("Error loading vehicles:", error);
+          this.vehicles = []; // Show empty state instead of mock data
+        },
+      })
+    );
+  }
+
+  private loadMockVehicles(): void {
+    // Fallback mock data if API fails
     this.vehicles = [
       {
         vehicleId: "vehicle_001",
@@ -109,63 +138,24 @@ export class DashboardComponent implements OnInit, OnDestroy {
         fuelLevel: 85,
         batteryLevel: 92,
       },
-      {
-        vehicleId: "vehicle_002",
-        name: "Patrol Vehicle 002",
-        type: "Patrol",
-        status: "OnMission",
-        lastSeen: new Date().toISOString(),
-        position: { lat: 40.7589, lng: -73.9851 },
-        image:
-          "https://images.pexels.com/photos/248697/pexels-photo-248697.jpeg",
-        speed: 38,
-        temperature: 26,
-        fuelLevel: 72,
-        batteryLevel: 88,
-      },
-      {
-        vehicleId: "vehicle_003",
-        name: "Surveillance Vehicle 003",
-        type: "Surveillance",
-        status: "Online",
-        lastSeen: new Date().toISOString(),
-        position: { lat: 40.6892, lng: -74.0445 },
-        image:
-          "https://images.pexels.com/photos/14589919/pexels-photo-14589919.jpeg",
-        speed: 0,
-        temperature: 24,
-        fuelLevel: 95,
-        batteryLevel: 78,
-      },
-      {
-        vehicleId: "vehicle_004",
-        name: "Emergency Vehicle 004",
-        type: "Emergency",
-        status: "Alert",
-        lastSeen: new Date().toISOString(),
-        position: { lat: 40.7505, lng: -73.9934 },
-        image:
-          "https://images.pexels.com/photos/31129031/pexels-photo-31129031.jpeg",
-        speed: 65,
-        temperature: 28,
-        fuelLevel: 45,
-        batteryLevel: 65,
-      },
-      {
-        vehicleId: "vehicle_005",
-        name: "Transport Vehicle 005",
-        type: "Transport",
-        status: "Online",
-        lastSeen: new Date().toISOString(),
-        position: { lat: 40.6782, lng: -73.9442 },
-        image:
-          "https://images.pexels.com/photos/139334/pexels-photo-139334.jpeg",
-        speed: 32,
-        temperature: 23,
-        fuelLevel: 88,
-        batteryLevel: 91,
-      },
     ];
+  }
+
+  private getDefaultVehicleImage(type: string): string {
+    const defaultImages = {
+      Patrol:
+        "https://images.pexels.com/photos/1008738/pexels-photo-1008738.jpeg",
+      Surveillance:
+        "https://images.pexels.com/photos/14589919/pexels-photo-14589919.jpeg",
+      Emergency:
+        "https://images.pexels.com/photos/31129031/pexels-photo-31129031.jpeg",
+      Transport:
+        "https://images.pexels.com/photos/139334/pexels-photo-139334.jpeg",
+    };
+    return (
+      defaultImages[type as keyof typeof defaultImages] ||
+      defaultImages["Patrol"]
+    );
   }
 
   private setupWebSocketConnections(): void {
