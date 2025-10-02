@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from "@angular/core";
+import { Component, OnInit, OnDestroy, ChangeDetectorRef } from "@angular/core";
 import { MatDialog } from "@angular/material/dialog";
 import { MatSnackBar } from "@angular/material/snack-bar";
 import { VehicleFormComponent } from "../vehicle-form/vehicle-form.component";
@@ -34,7 +34,8 @@ export class VehiclesComponent implements OnInit, OnDestroy {
   constructor(
     private dialog: MatDialog,
     private snackBar: MatSnackBar,
-    private apiService: ApiService
+    private apiService: ApiService,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
@@ -140,17 +141,36 @@ export class VehiclesComponent implements OnInit, OnDestroy {
   }
 
   private updateVehicle(vehicle: Vehicle): void {
-    const index = this.vehicles.findIndex(
-      (v) => v.vehicleId === vehicle.vehicleId
+    this.subscriptions.push(
+      this.apiService.updateVehicle(vehicle.vehicleId, vehicle).subscribe({
+        next: (updatedVehicle) => {
+          const index = this.vehicles.findIndex(
+            (v) => v.vehicleId === vehicle.vehicleId
+          );
+          if (index !== -1) {
+            this.vehicles[index] = updatedVehicle;
+          }
+          this.cdr.detectChanges(); // Force UI update
+          this.snackBar.open("Vehicle updated successfully!", "Close", {
+            duration: 3000,
+            panelClass: ["success-snackbar"],
+          });
+          // Reload vehicles to ensure UI is fully updated
+          this.loadVehicles();
+        },
+        error: (error) => {
+          console.error("Error updating vehicle:", error);
+          this.snackBar.open(
+            "Error updating vehicle. Please try again.",
+            "Close",
+            {
+              duration: 5000,
+              panelClass: ["error-snackbar"],
+            }
+          );
+        },
+      })
     );
-    if (index !== -1) {
-      this.vehicles[index] = { ...this.vehicles[index], ...vehicle };
-
-      this.snackBar.open("Vehicle updated successfully!", "Close", {
-        duration: 3000,
-        panelClass: ["success-snackbar"],
-      });
-    }
   }
 
   deleteVehicle(vehicle: Vehicle): void {
