@@ -52,16 +52,16 @@ export class NotificationDrawerComponent implements OnInit, OnDestroy {
 
   private mapAlertFromApi(apiAlert: any): Alert {
     const severityMap = {
-      0: AlertSeverity.Low,
-      1: AlertSeverity.Medium,
-      2: AlertSeverity.High,
-      3: AlertSeverity.Critical,
+      Low: AlertSeverity.Low,
+      Medium: AlertSeverity.Medium,
+      High: AlertSeverity.High,
+      Critical: AlertSeverity.Critical,
     };
 
     const statusMap = {
-      0: AlertStatus.Open,
-      1: AlertStatus.Acknowledged,
-      2: AlertStatus.Resolved,
+      Open: AlertStatus.Open,
+      Acknowledged: AlertStatus.Acknowledged,
+      Resolved: AlertStatus.Resolved,
     };
 
     return {

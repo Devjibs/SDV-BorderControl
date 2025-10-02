@@ -72,17 +72,17 @@ export class NavigationComponent implements OnInit, AfterViewInit {
   private mapAlertFromApi(apiAlert: any): Alert {
     // Map severity from number to string
     const severityMap = {
-      0: AlertSeverity.Low,
-      1: AlertSeverity.Medium,
-      2: AlertSeverity.High,
-      3: AlertSeverity.Critical,
+      Low: AlertSeverity.Low,
+      Medium: AlertSeverity.Medium,
+      High: AlertSeverity.High,
+      Critical: AlertSeverity.Critical,
     };
 
     // Map status from number to string
     const statusMap = {
-      0: AlertStatus.Open,
-      1: AlertStatus.Acknowledged,
-      2: AlertStatus.Resolved,
+      Open: AlertStatus.Open,
+      Acknowledged: AlertStatus.Acknowledged,
+      Resolved: AlertStatus.Resolved,
     };
 
     return {

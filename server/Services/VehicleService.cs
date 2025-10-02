@@ -126,7 +126,7 @@ namespace SDV.BorderControl.API.Services
             try
             {
                 Vehicle? vehicle;
-                
+
                 // Handle empty vehicleId by looking for vehicles with empty VehicleId
                 if (string.IsNullOrEmpty(vehicleId))
                 {
