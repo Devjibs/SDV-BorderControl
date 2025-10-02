@@ -36,6 +36,9 @@ import { AlertsComponent } from "./components/alerts/alerts.component";
 import { VehicleDetailComponent } from "./components/vehicle-detail/vehicle-detail.component";
 import { NavigationComponent } from "./components/navigation/navigation.component";
 import { NotificationDrawerComponent } from "./components/notification-drawer/notification-drawer.component";
+import { VehiclesComponent } from "./components/vehicles/vehicles.component";
+import { VehicleFormComponent } from "./components/vehicle-form/vehicle-form.component";
+import { AlertsManagementComponent } from "./components/alerts-management/alerts-management.component";
 
 @NgModule({
   declarations: [
@@ -48,6 +51,9 @@ import { NotificationDrawerComponent } from "./components/notification-drawer/no
     VehicleDetailComponent,
     NavigationComponent,
     NotificationDrawerComponent,
+    VehiclesComponent,
+    VehicleFormComponent,
+    AlertsManagementComponent,
   ],
   imports: [
     BrowserModule,

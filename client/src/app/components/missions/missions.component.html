@@ -27,7 +27,7 @@
 
                 <ng-container matColumnDef="vehicleCount">
                     <th mat-header-cell *matHeaderCellDef>Vehicles</th>
-                    <td mat-cell *matCellDef="let mission">{{ mission.vehicleIds.length }}</td>
+                    <td mat-cell *matCellDef="let mission">{{ getVehicleCount(mission) }}</td>
                 </ng-container>
 
                 <ng-container matColumnDef="status">
@@ -40,7 +40,7 @@
                 <ng-container matColumnDef="actions">
                     <th mat-header-cell *matHeaderCellDef>Actions</th>
                     <td mat-cell *matCellDef="let mission">
-                        <button mat-icon-button (click)="editMission(mission)" matTooltip="Edit Mission">
+                        <button mat-icon-button (click)="openEditMissionDialog(mission)" matTooltip="Edit Mission">
                             <mat-icon>edit</mat-icon>
                         </button>
                         <button mat-icon-button (click)="deleteMission(mission)" matTooltip="Delete Mission"

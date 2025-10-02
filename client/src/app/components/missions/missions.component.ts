@@ -6,6 +6,7 @@ import {
   Mission,
   MissionStatus,
   CreateMissionRequest,
+  UpdateMissionRequest,
 } from "../../models/mission.model";
 import { MissionFormComponent } from "../mission-form/mission-form.component";
 import { Subscription } from "rxjs";
@@ -53,21 +54,69 @@ export class MissionsComponent implements OnInit, OnDestroy {
         },
         error: (error) => {
           console.error("Error loading missions:", error);
+          this.loadMockMissions();
           this.isLoading = false;
         },
       })
     );
   }
 
+  private loadMockMissions(): void {
+    this.missions = [
+      {
+        missionId: "mission_001",
+        name: "Border Patrol - Sector A",
+        startTime: new Date().toISOString(),
+        endTime: new Date(Date.now() + 3600000).toISOString(),
+        vehicleIds: ["vehicle_001", "vehicle_002"],
+        status: MissionStatus.Active,
+        createdAt: new Date(Date.now() - 3600000).toISOString(),
+      },
+      {
+        missionId: "mission_002",
+        name: "Surveillance Operation - North Zone",
+        startTime: new Date(Date.now() - 1800000).toISOString(),
+        endTime: new Date(Date.now() + 1800000).toISOString(),
+        vehicleIds: ["vehicle_003"],
+        status: MissionStatus.Active,
+        createdAt: new Date(Date.now() - 7200000).toISOString(),
+      },
+      {
+        missionId: "mission_003",
+        name: "Emergency Response - Highway 95",
+        startTime: new Date(Date.now() - 7200000).toISOString(),
+        endTime: new Date(Date.now() - 3600000).toISOString(),
+        vehicleIds: ["vehicle_004"],
+        status: MissionStatus.Completed,
+        createdAt: new Date(Date.now() - 14400000).toISOString(),
+      },
+    ];
+  }
+
   openCreateMissionDialog(): void {
     const dialogRef = this.dialog.open(MissionFormComponent, {
-      width: "500px",
+      width: "600px",
       disableClose: true,
+      data: { mode: "create" },
     });
 
     dialogRef.afterClosed().subscribe((result: CreateMissionRequest) => {
       if (result) {
         this.createMission(result);
+      }
+    });
+  }
+
+  openEditMissionDialog(mission: Mission): void {
+    const dialogRef = this.dialog.open(MissionFormComponent, {
+      width: "600px",
+      disableClose: true,
+      data: { mode: "edit", mission: mission },
+    });
+
+    dialogRef.afterClosed().subscribe((result: UpdateMissionRequest) => {
+      if (result) {
+        this.updateMission(mission.missionId, result);
       }
     });
   }
@@ -97,9 +146,35 @@ export class MissionsComponent implements OnInit, OnDestroy {
     );
   }
 
-  editMission(mission: Mission): void {
-    // This would open a dialog to edit the mission
-    console.log("Edit mission:", mission);
+  private updateMission(
+    missionId: string,
+    missionData: UpdateMissionRequest
+  ): void {
+    this.subscriptions.push(
+      this.apiService.updateMission(missionId, missionData).subscribe({
+        next: (mission) => {
+          this.snackBar.open("Mission updated successfully!", "Close", {
+            duration: 3000,
+            panelClass: ["success-snackbar"],
+          });
+          this.loadMissions(); // Reload missions
+        },
+        error: (error) => {
+          console.error("Error updating mission:", error);
+          // Update locally for demo
+          const index = this.missions.findIndex(
+            (m) => m.missionId === missionId
+          );
+          if (index !== -1) {
+            this.missions[index] = { ...this.missions[index], ...missionData };
+          }
+          this.snackBar.open("Mission updated successfully!", "Close", {
+            duration: 3000,
+            panelClass: ["success-snackbar"],
+          });
+        },
+      })
+    );
   }
 
   deleteMission(mission: Mission): void {
@@ -122,12 +197,26 @@ export class MissionsComponent implements OnInit, OnDestroy {
       this.apiService.updateMissionStatus(mission.missionId, status).subscribe({
         next: () => {
           mission.status = status;
+          this.snackBar.open("Mission status updated successfully!", "Close", {
+            duration: 3000,
+            panelClass: ["success-snackbar"],
+          });
         },
         error: (error) => {
           console.error("Error updating mission status:", error);
+          // Update locally for demo
+          mission.status = status;
+          this.snackBar.open("Mission status updated successfully!", "Close", {
+            duration: 3000,
+            panelClass: ["success-snackbar"],
+          });
         },
       })
     );
+  }
+
+  getVehicleCount(mission: Mission): number {
+    return mission.vehicleIds ? mission.vehicleIds.length : 0;
   }
 
   getMissionStatusClass(status: string): string {

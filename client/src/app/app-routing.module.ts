@@ -3,11 +3,15 @@ import { RouterModule, Routes } from "@angular/router";
 import { DashboardComponent } from "./components/dashboard/dashboard.component";
 import { MissionsComponent } from "./components/missions/missions.component";
 import { VehicleDetailComponent } from "./components/vehicle-detail/vehicle-detail.component";
+import { VehiclesComponent } from "./components/vehicles/vehicles.component";
+import { AlertsManagementComponent } from "./components/alerts-management/alerts-management.component";
 
 const routes: Routes = [
   { path: "", redirectTo: "/dashboard", pathMatch: "full" },
   { path: "dashboard", component: DashboardComponent },
   { path: "missions", component: MissionsComponent },
+  { path: "vehicles", component: VehiclesComponent },
+  { path: "alerts", component: AlertsManagementComponent },
   { path: "vehicle/:id", component: VehicleDetailComponent },
   { path: "**", redirectTo: "/dashboard" },
 ];
@@ -17,4 +21,3 @@ const routes: Routes = [
   exports: [RouterModule],
 })
 export class AppRoutingModule {}
-
