@@ -58,14 +58,24 @@
             <mat-card-header>
                 <mat-card-title>Recent Missions</mat-card-title>
             </mat-card-header>
-            <mat-card-content>
-                <div *ngFor="let mission of missions" class="mission-item">
-                    <div class="mission-info">
-                        <h3>{{ mission.name }}</h3>
-                        <p>{{ mission.vehicleIds.length }} vehicle(s) assigned</p>
-                        <p>Start: {{ mission.startTime | date:'short' }}</p>
+            <mat-card-content class="mission-content">
+                <div *ngIf="isLoading" class="loading-missions">
+                    <mat-spinner diameter="30"></mat-spinner>
+                    <p>Loading missions...</p>
+                </div>
+                <div *ngIf="missions.length === 0 && !isLoading" class="no-missions">
+                    <mat-icon>assignment</mat-icon>
+                    <p>No recent missions</p>
+                </div>
+                <div *ngIf="!isLoading && missions.length > 0" class="mission-list">
+                    <div *ngFor="let mission of missions" class="mission-item">
+                        <div class="mission-info">
+                            <h3>{{ mission.name }}</h3>
+                            <p>{{ mission.vehicleIds.length }} vehicle(s) assigned</p>
+                            <p>Start: {{ mission.startTime | date:'short' }}</p>
+                        </div>
+                        <span [class]="getMissionStatusClass(mission.status)">{{ mission.status }}</span>
                     </div>
-                    <span [class]="getMissionStatusClass(mission.status)">{{ mission.status }}</span>
                 </div>
             </mat-card-content>
         </mat-card>

@@ -67,10 +67,49 @@
       height: 300px; /* Smaller height on mobile */
     }
   }
+  
+  .mission-card {
+    .mission-content {
+      height: 300px; /* Smaller height on mobile */
+    }
+  }
 }
 
 .mission-card, .alert-card, .map-card, .vehicle-card {
   margin-bottom: 20px;
+}
+
+.mission-card {
+  .mission-content {
+    height: 400px;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .mission-list {
+    flex: 1;
+    overflow-y: auto;
+    padding-right: 8px;
+    
+    /* Custom scrollbar styling */
+    &::-webkit-scrollbar {
+      width: 6px;
+    }
+    
+    &::-webkit-scrollbar-track {
+      background: #f1f1f1;
+      border-radius: 3px;
+    }
+    
+    &::-webkit-scrollbar-thumb {
+      background: #c1c1c1;
+      border-radius: 3px;
+      
+      &:hover {
+        background: #a8a8a8;
+      }
+    }
+  }
 }
 
 .alert-card {
@@ -148,7 +187,7 @@
   }
 }
 
-.loading-alerts, .no-alerts {
+.loading-alerts, .no-alerts, .loading-missions, .no-missions {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -169,7 +208,7 @@
   }
 }
 
-.loading-alerts {
+.loading-alerts, .loading-missions {
   color: #666;
   
   p {
