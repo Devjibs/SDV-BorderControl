@@ -30,7 +30,6 @@ import { MatTooltipModule } from "@angular/material/tooltip";
 import { AppRoutingModule } from "./app-routing.module";
 import { AppComponent } from "./app.component";
 import { DashboardComponent } from "./components/dashboard/dashboard.component";
-import { MissionsComponent } from "./components/missions/missions.component";
 import { MissionFormComponent } from "./components/mission-form/mission-form.component";
 import { VehicleMapComponent } from "./components/vehicle-map/vehicle-map.component";
 import { AlertsComponent } from "./components/alerts/alerts.component";
@@ -42,14 +41,11 @@ import { VehicleFormComponent } from "./components/vehicle-form/vehicle-form.com
 import { AlertsManagementComponent } from "./components/alerts-management/alerts-management.component";
 import { AnalyticsComponent } from "./components/analytics/analytics.component";
 import { MissionManagerComponent } from "./components/mission-manager/mission-manager.component";
-import { MissionManagerDebugComponent } from "./components/mission-manager/mission-manager-debug.component";
-import { MissionManagerSimpleComponent } from "./components/mission-manager/mission-manager-simple.component";
 
 @NgModule({
   declarations: [
     AppComponent,
     DashboardComponent,
-    MissionsComponent,
     MissionFormComponent,
     VehicleMapComponent,
     AlertsComponent,
@@ -61,8 +57,6 @@ import { MissionManagerSimpleComponent } from "./components/mission-manager/miss
     AlertsManagementComponent,
     AnalyticsComponent,
     MissionManagerComponent,
-    MissionManagerDebugComponent,
-    MissionManagerSimpleComponent,
   ],
   imports: [
     BrowserModule,

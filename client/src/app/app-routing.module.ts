@@ -1,22 +1,17 @@
 import { NgModule } from "@angular/core";
 import { RouterModule, Routes } from "@angular/router";
 import { DashboardComponent } from "./components/dashboard/dashboard.component";
-import { MissionsComponent } from "./components/missions/missions.component";
 import { VehicleDetailComponent } from "./components/vehicle-detail/vehicle-detail.component";
 import { VehiclesComponent } from "./components/vehicles/vehicles.component";
 import { AlertsManagementComponent } from "./components/alerts-management/alerts-management.component";
 import { AnalyticsComponent } from "./components/analytics/analytics.component";
 import { MissionManagerComponent } from "./components/mission-manager/mission-manager.component";
-import { MissionManagerDebugComponent } from "./components/mission-manager/mission-manager-debug.component";
-import { MissionManagerSimpleComponent } from "./components/mission-manager/mission-manager-simple.component";
 
 const routes: Routes = [
   { path: "", redirectTo: "/dashboard", pathMatch: "full" },
   { path: "dashboard", component: DashboardComponent },
-  { path: "missions", component: MissionsComponent },
+  { path: "missions", redirectTo: "/mission-manager", pathMatch: "full" },
   { path: "mission-manager", component: MissionManagerComponent },
-  { path: "mission-debug", component: MissionManagerDebugComponent },
-  { path: "mission-simple", component: MissionManagerSimpleComponent },
   { path: "vehicles", component: VehiclesComponent },
   { path: "alerts", component: AlertsManagementComponent },
   { path: "analytics", component: AnalyticsComponent },
