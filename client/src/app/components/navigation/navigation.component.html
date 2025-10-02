@@ -1,0 +1,39 @@
+<mat-toolbar color="primary">
+    <button mat-icon-button (click)="toggleSidenav()">
+        <mat-icon>menu</mat-icon>
+    </button>
+    <span>SDV Border Control Platform</span>
+    <span class="spacer"></span>
+    <button mat-icon-button>
+        <mat-icon>notifications</mat-icon>
+    </button>
+</mat-toolbar>
+
+<mat-sidenav-container class="sidenav-container">
+    <mat-sidenav #sidenav [(opened)]="isSidenavOpen" mode="side">
+        <mat-nav-list>
+            <a mat-list-item routerLink="/dashboard" routerLinkActive="active">
+                <mat-icon matListItemIcon>dashboard</mat-icon>
+                <span matListItemTitle>Dashboard</span>
+            </a>
+            <a mat-list-item routerLink="/missions" routerLinkActive="active">
+                <mat-icon matListItemIcon>assignment</mat-icon>
+                <span matListItemTitle>Missions</span>
+            </a>
+            <a mat-list-item routerLink="/vehicles" routerLinkActive="active">
+                <mat-icon matListItemIcon>directions_car</mat-icon>
+                <span matListItemTitle>Vehicles</span>
+            </a>
+            <a mat-list-item routerLink="/alerts" routerLinkActive="active">
+                <mat-icon matListItemIcon>warning</mat-icon>
+                <span matListItemTitle>Alerts</span>
+            </a>
+        </mat-nav-list>
+    </mat-sidenav>
+
+    <mat-sidenav-content>
+        <div class="content">
+            <router-outlet></router-outlet>
+        </div>
+    </mat-sidenav-content>
+</mat-sidenav-container>

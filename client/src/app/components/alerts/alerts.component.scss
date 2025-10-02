@@ -1,0 +1,52 @@
+.alerts-container {
+  padding: 20px;
+}
+
+.alerts-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.filters {
+  display: flex;
+  gap: 16px;
+}
+
+.filters mat-form-field {
+  width: 150px;
+}
+
+.data-table {
+  width: 100%;
+}
+
+.loading-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 200px;
+}
+
+.no-data {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 200px;
+  color: #666;
+}
+
+.no-data mat-icon {
+  font-size: 48px;
+  width: 48px;
+  height: 48px;
+  margin-bottom: 16px;
+}
+
+.no-data p {
+  margin: 0;
+  font-size: 16px;
+}
+

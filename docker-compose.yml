@@ -1,0 +1,52 @@
+version: "3.8"
+
+services:
+  api:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    ports:
+      - "5000:5000"
+      - "5001:5001"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:5000;https://+:5001
+      - ConnectionStrings__DefaultConnection=Data Source=/app/data/sdv.db
+    volumes:
+      - ./data:/app/data
+    networks:
+      - sdv-network
+
+  client:
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+    ports:
+      - "4200:80"
+    environment:
+      - API_URL=http://localhost:5000
+    depends_on:
+      - api
+    networks:
+      - sdv-network
+
+  edge-simulator:
+    build:
+      context: ./edge-simulator
+      dockerfile: Dockerfile
+    environment:
+      - API_URL=http://api:5000
+    depends_on:
+      - api
+    networks:
+      - sdv-network
+    profiles:
+      - simulator
+
+networks:
+  sdv-network:
+    driver: bridge
+
+volumes:
+  data:
+

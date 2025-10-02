@@ -1,0 +1,166 @@
+<div class="dashboard-container">
+    <h1>SDV Border Control Dashboard</h1>
+
+    <!-- Analytics Cards -->
+    <div class="analytics-grid" *ngIf="!isLoading">
+        <mat-card class="analytics-card">
+            <mat-card-content>
+                <div class="metric">
+                    <mat-icon>directions_car</mat-icon>
+                    <div>
+                        <h3>{{ totalVehicles }}</h3>
+                        <p>Total Vehicles</p>
+                    </div>
+                </div>
+            </mat-card-content>
+        </mat-card>
+
+        <mat-card class="analytics-card">
+            <mat-card-content>
+                <div class="metric">
+                    <mat-icon>check_circle</mat-icon>
+                    <div>
+                        <h3>{{ onlineVehicles }}</h3>
+                        <p>Online Vehicles</p>
+                    </div>
+                </div>
+            </mat-card-content>
+        </mat-card>
+
+        <mat-card class="analytics-card">
+            <mat-card-content>
+                <div class="metric">
+                    <mat-icon>assignment</mat-icon>
+                    <div>
+                        <h3>{{ activeMissions }}</h3>
+                        <p>Active Missions</p>
+                    </div>
+                </div>
+            </mat-card-content>
+        </mat-card>
+
+        <mat-card class="analytics-card">
+            <mat-card-content>
+                <div class="metric">
+                    <mat-icon>warning</mat-icon>
+                    <div>
+                        <h3>{{ criticalAlerts }}</h3>
+                        <p>Critical Alerts</p>
+                    </div>
+                </div>
+            </mat-card-content>
+        </mat-card>
+    </div>
+
+    <div class="dashboard-grid" *ngIf="!isLoading">
+        <!-- Missions Overview -->
+        <mat-card class="mission-card">
+            <mat-card-header>
+                <mat-card-title>Recent Missions</mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+                <div *ngFor="let mission of missions" class="mission-item">
+                    <div class="mission-info">
+                        <h3>{{ mission.name }}</h3>
+                        <p>{{ mission.vehicleIds.length }} vehicle(s) assigned</p>
+                        <p>Start: {{ mission.startTime | date:'short' }}</p>
+                    </div>
+                    <span [class]="getMissionStatusClass(mission.status)">{{ mission.status }}</span>
+                </div>
+            </mat-card-content>
+        </mat-card>
+
+        <!-- Active Alerts -->
+        <mat-card class="alert-card">
+            <mat-card-header>
+                <mat-card-title>Active Alerts</mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+                <div *ngFor="let alert of activeAlerts" class="alert-item"
+                    [class]="getAlertSeverityClass(alert.severity)">
+                    <div class="alert-info">
+                        <h4>{{ alert.type }}</h4>
+                        <p>{{ alert.message }}</p>
+                        <p class="alert-time">{{ alert.timestamp | date:'short' }}</p>
+                    </div>
+                    <span class="alert-severity">{{ alert.severity }}</span>
+                </div>
+            </mat-card-content>
+        </mat-card>
+    </div>
+
+    <!-- Vehicle Map -->
+    <mat-card class="map-card">
+        <mat-card-header>
+            <mat-card-title>Vehicle Positions</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+            <app-vehicle-map [vehicles]="vehicles"></app-vehicle-map>
+        </mat-card-content>
+    </mat-card>
+
+    <!-- Vehicle Status Table -->
+    <mat-card class="vehicle-card">
+        <mat-card-header>
+            <mat-card-title>Vehicle Status</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+            <table mat-table [dataSource]="vehicles" class="data-table">
+                <ng-container matColumnDef="image">
+                    <th mat-header-cell *matHeaderCellDef>Vehicle</th>
+                    <td mat-cell *matCellDef="let vehicle">
+                        <div class="vehicle-info">
+                            <img [src]="vehicle.image" [alt]="vehicle.name" class="vehicle-image">
+                            <div>
+                                <strong>{{ vehicle.name }}</strong>
+                                <br>
+                                <small>{{ vehicle.type }}</small>
+                            </div>
+                        </div>
+                    </td>
+                </ng-container>
+
+                <ng-container matColumnDef="status">
+                    <th mat-header-cell *matHeaderCellDef>Status</th>
+                    <td mat-cell *matCellDef="let vehicle">
+                        <span [class]="getVehicleStatusClass(vehicle.status)">{{ vehicle.status }}</span>
+                    </td>
+                </ng-container>
+
+                <ng-container matColumnDef="telemetry">
+                    <th mat-header-cell *matHeaderCellDef>Telemetry</th>
+                    <td mat-cell *matCellDef="let vehicle">
+                        <div class="telemetry-info">
+                            <div>Speed: {{ vehicle.speed }} km/h</div>
+                            <div>Temp: {{ vehicle.temperature | number:'1.1-1' }}°C</div>
+                            <div>Fuel: {{ vehicle.fuelLevel }}%</div>
+                            <div>Battery: {{ vehicle.batteryLevel }}%</div>
+                        </div>
+                    </td>
+                </ng-container>
+
+                <ng-container matColumnDef="lastSeen">
+                    <th mat-header-cell *matHeaderCellDef>Last Seen</th>
+                    <td mat-cell *matCellDef="let vehicle">{{ vehicle.lastSeen | date:'short' }}</td>
+                </ng-container>
+
+                <ng-container matColumnDef="actions">
+                    <th mat-header-cell *matHeaderCellDef>Actions</th>
+                    <td mat-cell *matCellDef="let vehicle">
+                        <button mat-button color="primary" [routerLink]="['/vehicle', vehicle.vehicleId]">
+                            View Details
+                        </button>
+                    </td>
+                </ng-container>
+
+                <tr mat-header-row *matHeaderRowDef="['image', 'status', 'telemetry', 'lastSeen', 'actions']"></tr>
+                <tr mat-row *matRowDef="let row; columns: ['image', 'status', 'telemetry', 'lastSeen', 'actions'];"></tr>
+            </table>
+        </mat-card-content>
+    </mat-card>
+
+    <!-- Loading Spinner -->
+    <div *ngIf="isLoading" class="loading-container">
+        <mat-spinner></mat-spinner>
+    </div>
+</div>

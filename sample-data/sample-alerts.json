@@ -1,0 +1,30 @@
+[
+    {
+        "vehicleId": "vehicle_001",
+        "type": "Overspeed",
+        "message": "Vehicle speed 85.2 km/h exceeds limit",
+        "severity": "High",
+        "timestamp": "2025-01-15T10:35:00Z",
+        "status": "Open"
+    },
+    {
+        "vehicleId": "vehicle_002",
+        "type": "TemperatureHigh",
+        "message": "Engine temperature 38.5°C is high",
+        "severity": "Medium",
+        "timestamp": "2025-01-15T10:32:00Z",
+        "status": "Acknowledged",
+        "acknowledgedAt": "2025-01-15T10:33:00Z",
+        "acknowledgedBy": "operator_001"
+    },
+    {
+        "vehicleId": "vehicle_003",
+        "type": "FuelLow",
+        "message": "Fuel level 15% is low",
+        "severity": "Medium",
+        "timestamp": "2025-01-15T10:28:00Z",
+        "status": "Resolved",
+        "resolvedAt": "2025-01-15T10:40:00Z",
+        "resolvedBy": "operator_002"
+    }
+]

@@ -1,0 +1,17 @@
+.sidenav-container {
+  height: calc(100vh - 64px);
+}
+
+.spacer {
+  flex: 1 1 auto;
+}
+
+.mat-nav-list a.active {
+  background-color: rgba(0, 0, 0, 0.04);
+}
+
+.content {
+  padding: 20px;
+  overflow-y: auto;
+}
+

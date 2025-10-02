@@ -1,0 +1,75 @@
+<div class="missions-container">
+    <div class="missions-header">
+        <h1>Missions</h1>
+        <button mat-raised-button color="primary" (click)="openCreateMissionDialog()">
+            <mat-icon>add</mat-icon>
+            Create Mission
+        </button>
+    </div>
+
+    <mat-card>
+        <mat-card-content>
+            <table mat-table [dataSource]="missions" class="data-table">
+                <ng-container matColumnDef="name">
+                    <th mat-header-cell *matHeaderCellDef>Mission Name</th>
+                    <td mat-cell *matCellDef="let mission">{{ mission.name }}</td>
+                </ng-container>
+
+                <ng-container matColumnDef="startTime">
+                    <th mat-header-cell *matHeaderCellDef>Start Time</th>
+                    <td mat-cell *matCellDef="let mission">{{ mission.startTime | date:'short' }}</td>
+                </ng-container>
+
+                <ng-container matColumnDef="endTime">
+                    <th mat-header-cell *matHeaderCellDef>End Time</th>
+                    <td mat-cell *matCellDef="let mission">{{ mission.endTime | date:'short' }}</td>
+                </ng-container>
+
+                <ng-container matColumnDef="vehicleCount">
+                    <th mat-header-cell *matHeaderCellDef>Vehicles</th>
+                    <td mat-cell *matCellDef="let mission">{{ mission.vehicleIds.length }}</td>
+                </ng-container>
+
+                <ng-container matColumnDef="status">
+                    <th mat-header-cell *matHeaderCellDef>Status</th>
+                    <td mat-cell *matCellDef="let mission">
+                        <span [class]="getMissionStatusClass(mission.status)">{{ mission.status }}</span>
+                    </td>
+                </ng-container>
+
+                <ng-container matColumnDef="actions">
+                    <th mat-header-cell *matHeaderCellDef>Actions</th>
+                    <td mat-cell *matCellDef="let mission">
+                        <button mat-icon-button (click)="editMission(mission)" matTooltip="Edit Mission">
+                            <mat-icon>edit</mat-icon>
+                        </button>
+                        <button mat-icon-button (click)="deleteMission(mission)" matTooltip="Delete Mission"
+                            color="warn">
+                            <mat-icon>delete</mat-icon>
+                        </button>
+                        <mat-form-field appearance="outline" class="status-select">
+                            <mat-select [value]="mission.status"
+                                (selectionChange)="updateMissionStatus(mission, $event.value)">
+                                <mat-option *ngFor="let option of getStatusOptions()" [value]="option.value">
+                                    {{ option.label }}
+                                </mat-option>
+                            </mat-select>
+                        </mat-form-field>
+                    </td>
+                </ng-container>
+
+                <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+                <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+            </table>
+
+            <div *ngIf="isLoading" class="loading-container">
+                <mat-spinner></mat-spinner>
+            </div>
+
+            <div *ngIf="!isLoading && missions.length === 0" class="no-data">
+                <mat-icon>assignment</mat-icon>
+                <p>No missions found. Create your first mission to get started.</p>
+            </div>
+        </mat-card-content>
+    </mat-card>
+</div>

@@ -1,0 +1,56 @@
+<div class="mission-form-container">
+    <h2 mat-dialog-title>Create New Mission</h2>
+
+    <mat-dialog-content>
+        <form [formGroup]="missionForm" (ngSubmit)="onSubmit()">
+            <div class="form-row">
+                <mat-form-field appearance="outline" class="full-width">
+                    <mat-label>Mission Name</mat-label>
+                    <input matInput formControlName="name" placeholder="Enter mission name">
+                    <mat-error *ngIf="missionForm.get('name')?.hasError('required')">
+                        Mission name is required
+                    </mat-error>
+                </mat-form-field>
+            </div>
+
+            <div class="form-row">
+                <mat-form-field appearance="outline">
+                    <mat-label>Start Time</mat-label>
+                    <input matInput type="datetime-local" formControlName="startTime">
+                    <mat-error *ngIf="missionForm.get('startTime')?.hasError('required')">
+                        Start time is required
+                    </mat-error>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline">
+                    <mat-label>End Time</mat-label>
+                    <input matInput type="datetime-local" formControlName="endTime">
+                    <mat-error *ngIf="missionForm.get('endTime')?.hasError('required')">
+                        End time is required
+                    </mat-error>
+                </mat-form-field>
+            </div>
+
+            <div class="form-row">
+                <mat-form-field appearance="outline" class="full-width">
+                    <mat-label>Assigned Vehicles</mat-label>
+                    <mat-select formControlName="vehicleIds" multiple>
+                        <mat-option *ngFor="let vehicle of availableVehicles" [value]="vehicle.id">
+                            {{ vehicle.name }}
+                        </mat-option>
+                    </mat-select>
+                    <mat-error *ngIf="missionForm.get('vehicleIds')?.hasError('required')">
+                        At least one vehicle must be selected
+                    </mat-error>
+                </mat-form-field>
+            </div>
+        </form>
+    </mat-dialog-content>
+
+    <mat-dialog-actions align="end">
+        <button mat-button (click)="onCancel()">Cancel</button>
+        <button mat-raised-button color="primary" (click)="onSubmit()" [disabled]="!missionForm.valid">
+            Create Mission
+        </button>
+    </mat-dialog-actions>
+</div>

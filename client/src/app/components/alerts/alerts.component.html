@@ -1,0 +1,92 @@
+<div class="alerts-container">
+    <div class="alerts-header">
+        <h1>Alerts</h1>
+        <div class="filters">
+            <mat-form-field appearance="outline">
+                <mat-label>Status</mat-label>
+                <mat-select [(value)]="selectedStatus" (selectionChange)="onStatusFilterChange()">
+                    <mat-option *ngFor="let option of getStatusOptions()" [value]="option.value">
+                        {{ option.label }}
+                    </mat-option>
+                </mat-select>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+                <mat-label>Severity</mat-label>
+                <mat-select [(value)]="selectedSeverity" (selectionChange)="onSeverityFilterChange()">
+                    <mat-option *ngFor="let option of getSeverityOptions()" [value]="option.value">
+                        {{ option.label }}
+                    </mat-option>
+                </mat-select>
+            </mat-form-field>
+        </div>
+    </div>
+
+    <mat-card>
+        <mat-card-content>
+            <table mat-table [dataSource]="filteredAlerts" class="data-table">
+                <ng-container matColumnDef="timestamp">
+                    <th mat-header-cell *matHeaderCellDef>Time</th>
+                    <td mat-cell *matCellDef="let alert">{{ alert.timestamp | date:'short' }}</td>
+                </ng-container>
+
+                <ng-container matColumnDef="vehicleId">
+                    <th mat-header-cell *matHeaderCellDef>Vehicle</th>
+                    <td mat-cell *matCellDef="let alert">{{ alert.vehicleId }}</td>
+                </ng-container>
+
+                <ng-container matColumnDef="type">
+                    <th mat-header-cell *matHeaderCellDef>Type</th>
+                    <td mat-cell *matCellDef="let alert">{{ alert.type }}</td>
+                </ng-container>
+
+                <ng-container matColumnDef="message">
+                    <th mat-header-cell *matHeaderCellDef>Message</th>
+                    <td mat-cell *matCellDef="let alert">{{ alert.message }}</td>
+                </ng-container>
+
+                <ng-container matColumnDef="severity">
+                    <th mat-header-cell *matHeaderCellDef>Severity</th>
+                    <td mat-cell *matCellDef="let alert">
+                        <span [class]="getAlertSeverityClass(alert.severity)">{{ alert.severity }}</span>
+                    </td>
+                </ng-container>
+
+                <ng-container matColumnDef="status">
+                    <th mat-header-cell *matHeaderCellDef>Status</th>
+                    <td mat-cell *matCellDef="let alert">
+                        <span [class]="getAlertStatusClass(alert.status)">{{ alert.status }}</span>
+                    </td>
+                </ng-container>
+
+                <ng-container matColumnDef="actions">
+                    <th mat-header-cell *matHeaderCellDef>Actions</th>
+                    <td mat-cell *matCellDef="let alert">
+                        <button *ngIf="alert.status === 'Open'" mat-button color="primary"
+                            (click)="acknowledgeAlert(alert)" matTooltip="Acknowledge Alert">
+                            <mat-icon>check</mat-icon>
+                            Acknowledge
+                        </button>
+                        <button *ngIf="alert.status === 'Acknowledged'" mat-button color="accent"
+                            (click)="resolveAlert(alert)" matTooltip="Resolve Alert">
+                            <mat-icon>done</mat-icon>
+                            Resolve
+                        </button>
+                    </td>
+                </ng-container>
+
+                <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+                <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+            </table>
+
+            <div *ngIf="isLoading" class="loading-container">
+                <mat-spinner></mat-spinner>
+            </div>
+
+            <div *ngIf="!isLoading && filteredAlerts.length === 0" class="no-data">
+                <mat-icon>warning</mat-icon>
+                <p>No alerts found matching the current filters.</p>
+            </div>
+        </mat-card-content>
+    </mat-card>
+</div>

@@ -1,0 +1,105 @@
+<div class="vehicle-detail-container">
+    <div class="vehicle-header">
+        <h1>{{ vehicle?.name || 'Vehicle Details' }}</h1>
+        <span [class]="getVehicleStatusClass(vehicle?.status || '')">{{ vehicle?.status || 'Unknown' }}</span>
+    </div>
+
+    <div *ngIf="isLoading" class="loading-container">
+        <mat-spinner></mat-spinner>
+    </div>
+
+    <div *ngIf="!isLoading" class="vehicle-content">
+        <!-- Vehicle Status Cards -->
+        <div class="status-cards">
+            <mat-card class="status-card">
+                <mat-card-header>
+                    <mat-card-title>Current Status</mat-card-title>
+                </mat-card-header>
+                <mat-card-content>
+                    <div class="status-info">
+                        <p><strong>Vehicle ID:</strong> {{ vehicleId }}</p>
+                        <p><strong>Type:</strong> {{ vehicle?.type || 'Unknown' }}</p>
+                        <p><strong>Last Seen:</strong> {{ vehicle?.lastSeen | date:'short' }}</p>
+                    </div>
+                </mat-card-content>
+            </mat-card>
+
+            <mat-card class="telemetry-card" *ngIf="latestTelemetry">
+                <mat-card-header>
+                    <mat-card-title>Latest Telemetry</mat-card-title>
+                </mat-card-header>
+                <mat-card-content>
+                    <div class="telemetry-grid">
+                        <div class="telemetry-item">
+                            <mat-icon>speed</mat-icon>
+                            <div>
+                                <p class="telemetry-label">Speed</p>
+                                <p class="telemetry-value">{{ formatSpeed(latestTelemetry.speed) }}</p>
+                            </div>
+                        </div>
+                        <div class="telemetry-item">
+                            <mat-icon>thermostat</mat-icon>
+                            <div>
+                                <p class="telemetry-label">Temperature</p>
+                                <p class="telemetry-value">{{ formatTemperature(latestTelemetry.temperature) }}</p>
+                            </div>
+                        </div>
+                        <div class="telemetry-item">
+                            <mat-icon>place</mat-icon>
+                            <div>
+                                <p class="telemetry-label">Position</p>
+                                <p class="telemetry-value">{{ formatCoordinate(latestTelemetry.latitude) }}, {{
+                                    formatCoordinate(latestTelemetry.longitude) }}</p>
+                            </div>
+                        </div>
+                        <div class="telemetry-item">
+                            <mat-icon>height</mat-icon>
+                            <div>
+                                <p class="telemetry-label">Altitude</p>
+                                <p class="telemetry-value">{{ latestTelemetry.altitude.toFixed(1) }}m</p>
+                            </div>
+                        </div>
+                    </div>
+                </mat-card-content>
+            </mat-card>
+        </div>
+
+        <!-- Alerts Section -->
+        <mat-card class="alerts-card" *ngIf="alerts.length > 0">
+            <mat-card-header>
+                <mat-card-title>Recent Alerts</mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+                <div *ngFor="let alert of alerts.slice(0, 5)" class="alert-item"
+                    [class]="getAlertSeverityClass(alert.severity)">
+                    <div class="alert-info">
+                        <h4>{{ alert.type }}</h4>
+                        <p>{{ alert.message }}</p>
+                        <p class="alert-time">{{ alert.timestamp | date:'short' }}</p>
+                    </div>
+                    <span class="alert-severity">{{ alert.severity }}</span>
+                </div>
+            </mat-card-content>
+        </mat-card>
+
+        <!-- Telemetry History -->
+        <mat-card class="history-card">
+            <mat-card-header>
+                <mat-card-title>Telemetry History</mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+                <div class="telemetry-history">
+                    <div *ngFor="let record of telemetryHistory.slice(0, 10)" class="history-item">
+                        <div class="history-time">{{ record.timestamp | date:'short' }}</div>
+                        <div class="history-data">
+                            <span>Speed: {{ formatSpeed(record.speed) }}</span>
+                            <span>Temp: {{ formatTemperature(record.temperature) }}</span>
+                            <span>Position: {{ formatCoordinate(record.latitude) }}, {{
+                                formatCoordinate(record.longitude) }}</span>
+                        </div>
+                    </div>
+                </div>
+            </mat-card-content>
+        </mat-card>
+    </div>
+</div>
