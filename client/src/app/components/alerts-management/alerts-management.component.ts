@@ -62,7 +62,6 @@ export class AlertsManagementComponent implements OnInit, OnDestroy {
         },
         error: (error) => {
           console.error("Error loading alerts:", error);
-          this.loadMockAlerts();
           this.isLoading = false;
         },
       })
@@ -101,57 +100,6 @@ export class AlertsManagementComponent implements OnInit, OnDestroy {
       resolvedBy: apiAlert.resolvedBy,
       additionalData: apiAlert.additionalData || {},
     };
-  }
-
-  private loadMockAlerts(): void {
-    this.alerts = [
-      {
-        id: 1,
-        vehicleId: "vehicle_001",
-        type: "EngineFault",
-        message: "Engine temperature critical - 95°C",
-        severity: AlertSeverity.Critical,
-        timestamp: new Date().toISOString(),
-        status: AlertStatus.Open,
-        additionalData: {},
-      },
-      {
-        id: 2,
-        vehicleId: "vehicle_002",
-        type: "FuelLow",
-        message: "Fuel level low - 15% remaining",
-        severity: AlertSeverity.High,
-        timestamp: new Date(Date.now() - 300000).toISOString(),
-        status: AlertStatus.Open,
-        additionalData: {},
-      },
-      {
-        id: 3,
-        vehicleId: "vehicle_003",
-        type: "BatteryLow",
-        message: "Battery level critical - 8% remaining",
-        severity: AlertSeverity.Critical,
-        timestamp: new Date(Date.now() - 600000).toISOString(),
-        status: AlertStatus.Acknowledged,
-        acknowledgedAt: new Date(Date.now() - 300000).toISOString(),
-        acknowledgedBy: "Operator 1",
-        additionalData: {},
-      },
-      {
-        id: 4,
-        vehicleId: "vehicle_004",
-        type: "Overspeed",
-        message: "Vehicle speed 85 km/h exceeds limit",
-        severity: AlertSeverity.Medium,
-        timestamp: new Date(Date.now() - 900000).toISOString(),
-        status: AlertStatus.Resolved,
-        resolvedAt: new Date(Date.now() - 600000).toISOString(),
-        resolvedBy: "Operator 2",
-        additionalData: {},
-      },
-    ];
-    this.filteredAlerts = this.alerts;
-    this.updatePagination();
   }
 
   onFilterChange(filter: string): void {
@@ -288,18 +236,6 @@ export class AlertsManagementComponent implements OnInit, OnDestroy {
         },
       })
     );
-  }
-
-  deleteAlert(alert: Alert): void {
-    if (confirm(`Are you sure you want to delete alert "${alert.type}"?`)) {
-      this.alerts = this.alerts.filter((a) => a.id !== alert.id);
-      this.onFilterChange(this.selectedFilter);
-
-      this.snackBar.open("Alert deleted successfully!", "Close", {
-        duration: 3000,
-        panelClass: ["success-snackbar"],
-      });
-    }
   }
 
   getSeverityClass(severity: AlertSeverity): string {

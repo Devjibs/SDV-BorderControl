@@ -57,139 +57,10 @@ export class VehiclesComponent implements OnInit, OnDestroy {
         },
         error: (error) => {
           console.error("❌ Error loading vehicles:", error);
-          this.loadMockVehicles();
           this.isLoading = false;
         },
       })
     );
-  }
-
-  private loadMockVehicles(): void {
-    // Fallback mock data if API fails
-    this.vehicles = [
-      {
-        vehicleId: "vehicle_001",
-        name: "Patrol Vehicle 001",
-        type: VehicleType.Patrol,
-        status: VehicleStatus.Online,
-        lastSeen: new Date().toISOString(),
-        lastTelemetry: {
-          id: 1,
-          vehicleId: "vehicle_001",
-          timestamp: new Date().toISOString(),
-          latitude: 40.7128,
-          longitude: -74.006,
-          speed: 45,
-          temperature: 25,
-          altitude: 10,
-          heading: 90,
-          additionalData: {
-            fuelLevel: 0.85,
-            batteryLevel: 0.92,
-            engineStatus: "running",
-          },
-        },
-        activeAlerts: [],
-      },
-      {
-        vehicleId: "vehicle_002",
-        name: "Patrol Vehicle 002",
-        type: VehicleType.Patrol,
-        status: VehicleStatus.OnMission,
-        lastSeen: new Date(Date.now() - 300000).toISOString(),
-        lastTelemetry: {
-          id: 2,
-          vehicleId: "vehicle_002",
-          timestamp: new Date(Date.now() - 300000).toISOString(),
-          latitude: 40.7589,
-          longitude: -73.9851,
-          speed: 38,
-          temperature: 26,
-          altitude: 15,
-          heading: 180,
-          additionalData: {
-            fuelLevel: 0.72,
-            batteryLevel: 0.88,
-            engineStatus: "running",
-          },
-        },
-        activeAlerts: [],
-      },
-      {
-        vehicleId: "vehicle_003",
-        name: "Surveillance Vehicle 003",
-        type: VehicleType.Surveillance,
-        status: VehicleStatus.Online,
-        lastSeen: new Date(Date.now() - 600000).toISOString(),
-        lastTelemetry: {
-          id: 3,
-          vehicleId: "vehicle_003",
-          timestamp: new Date(Date.now() - 600000).toISOString(),
-          latitude: 40.6892,
-          longitude: -74.0445,
-          speed: 0,
-          temperature: 24,
-          altitude: 5,
-          heading: 270,
-          additionalData: {
-            fuelLevel: 0.95,
-            batteryLevel: 0.78,
-            engineStatus: "idle",
-          },
-        },
-        activeAlerts: [],
-      },
-      {
-        vehicleId: "vehicle_004",
-        name: "Emergency Vehicle 004",
-        type: VehicleType.Emergency,
-        status: VehicleStatus.Alert,
-        lastSeen: new Date(Date.now() - 120000).toISOString(),
-        lastTelemetry: {
-          id: 4,
-          vehicleId: "vehicle_004",
-          timestamp: new Date(Date.now() - 120000).toISOString(),
-          latitude: 40.7505,
-          longitude: -73.9934,
-          speed: 65,
-          temperature: 28,
-          altitude: 20,
-          heading: 45,
-          additionalData: {
-            fuelLevel: 0.45,
-            batteryLevel: 0.65,
-            engineStatus: "running",
-          },
-        },
-        activeAlerts: [],
-      },
-      {
-        vehicleId: "vehicle_005",
-        name: "Transport Vehicle 005",
-        type: VehicleType.Transport,
-        status: VehicleStatus.Online,
-        lastSeen: new Date(Date.now() - 180000).toISOString(),
-        lastTelemetry: {
-          id: 5,
-          vehicleId: "vehicle_005",
-          timestamp: new Date(Date.now() - 180000).toISOString(),
-          latitude: 40.6782,
-          longitude: -73.9442,
-          speed: 32,
-          temperature: 23,
-          altitude: 8,
-          heading: 135,
-          additionalData: {
-            fuelLevel: 0.88,
-            batteryLevel: 0.91,
-            engineStatus: "running",
-          },
-        },
-        activeAlerts: [],
-      },
-    ];
-
-    this.isLoading = false;
   }
 
   openCreateVehicleDialog(): void {
@@ -284,14 +155,30 @@ export class VehiclesComponent implements OnInit, OnDestroy {
 
   deleteVehicle(vehicle: Vehicle): void {
     if (confirm(`Are you sure you want to delete vehicle "${vehicle.name}"?`)) {
-      this.vehicles = this.vehicles.filter(
-        (v) => v.vehicleId !== vehicle.vehicleId
+      this.subscriptions.push(
+        this.apiService.deleteVehicle(vehicle.vehicleId).subscribe({
+          next: () => {
+            this.vehicles = this.vehicles.filter(
+              (v) => v.vehicleId !== vehicle.vehicleId
+            );
+            this.snackBar.open("Vehicle deleted successfully!", "Close", {
+              duration: 3000,
+              panelClass: ["success-snackbar"],
+            });
+          },
+          error: (error) => {
+            console.error("Error deleting vehicle:", error);
+            this.snackBar.open(
+              "Error deleting vehicle. Please try again.",
+              "Close",
+              {
+                duration: 5000,
+                panelClass: ["error-snackbar"],
+              }
+            );
+          },
+        })
       );
-
-      this.snackBar.open("Vehicle deleted successfully!", "Close", {
-        duration: 3000,
-        panelClass: ["success-snackbar"],
-      });
     }
   }
 

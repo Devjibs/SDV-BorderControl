@@ -30,6 +30,7 @@ export class ApiService {
     const request = this.http.get<Mission[]>(`${this.baseUrl}/missions`);
     console.log("🌐 HTTP request created, returning observable");
     return request.pipe(
+      timeout(5000), // 5 second timeout
       catchError((error) => {
         console.error("❌ API Service: HTTP request failed:", error);
         console.error("❌ Error details:", error);

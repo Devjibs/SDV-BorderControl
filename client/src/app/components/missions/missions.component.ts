@@ -49,26 +49,28 @@ export class MissionsComponent implements OnInit, OnDestroy {
     console.log("🔄 Starting to load missions...");
     this.isLoading = true;
 
-    this.apiService.getMissions().subscribe({
-      next: (missions) => {
-        console.log("✅ Missions loaded successfully:", missions);
-        this.missions = missions;
-        this.isLoading = false;
-        console.log("✅ Loading state set to false");
-        this.cdr.detectChanges(); // Force UI update
-        console.log("🔄 Change detection triggered");
-      },
-      error: (error) => {
-        console.error("❌ Error loading missions:", error);
-        this.missions = []; // Show empty state instead of mock data
-        this.isLoading = false;
-        console.log("❌ Loading state set to false (error)");
-        this.cdr.detectChanges(); // Force UI update
-      },
-      complete: () => {
-        console.log("✅ Missions API call completed");
-      },
-    });
+    this.subscriptions.push(
+      this.apiService.getMissions().subscribe({
+        next: (missions) => {
+          console.log("✅ Missions loaded successfully:", missions);
+          this.missions = missions;
+          this.isLoading = false;
+          console.log("✅ Loading state set to false");
+          this.cdr.detectChanges(); // Force UI update
+          console.log("🔄 Change detection triggered");
+        },
+        error: (error) => {
+          console.error("❌ Error loading missions:", error);
+          this.missions = []; // Show empty state instead of mock data
+          this.isLoading = false;
+          console.log("❌ Loading state set to false (error)");
+          this.cdr.detectChanges(); // Force UI update
+        },
+        complete: () => {
+          console.log("✅ Missions API call completed");
+        },
+      })
+    );
   }
 
   openCreateMissionDialog(): void {
