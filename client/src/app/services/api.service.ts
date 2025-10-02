@@ -1,6 +1,7 @@
 import { Injectable } from "@angular/core";
 import { HttpClient } from "@angular/common/http";
 import { Observable, timeout, catchError, of, map } from "rxjs";
+import { environment } from "../../environments/environment";
 import {
   Mission,
   CreateMissionRequest,
@@ -17,7 +18,7 @@ import { Alert, AlertRequest } from "../models/alert.model";
   providedIn: "root",
 })
 export class ApiService {
-  private readonly baseUrl = "/api";
+  private readonly baseUrl = environment.apiUrl;
 
   constructor(private http: HttpClient) {}
 

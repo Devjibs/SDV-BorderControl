@@ -1,0 +1,15 @@
+{
+    "buildCommand": "npm run build",
+    "outputDirectory": "dist/sdv-border-control-client",
+    "framework": "angular",
+    "rewrites": [
+        {
+            "source": "/(.*)",
+            "destination": "/index.html"
+        }
+    ],
+    "env": {
+        "NG_APP_API_URL": "@ng_app_api_url",
+        "NG_APP_SIGNALR_URL": "@ng_app_signalr_url"
+    }
+}

@@ -15,6 +15,7 @@ from typing import List, Dict, Any
 import logging
 from dataclasses import dataclass
 import math
+import os
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -272,7 +273,7 @@ class EdgeSimulator:
 def main():
     parser = argparse.ArgumentParser(description='SDV Edge Simulator')
     parser.add_argument('--mission', required=True, help='Mission ID to simulate')
-    parser.add_argument('--server', required=True, help='API server URL')
+    parser.add_argument('--server', help='API server URL (default: from API_BASE_URL env var)')
     parser.add_argument('--vehicle-id', default=None, help='Vehicle ID (default: auto-generated)')
     parser.add_argument('--duration', type=int, default=60, help='Simulation duration in minutes')
     parser.add_argument('--interval', type=float, default=1.0, help='Telemetry interval in seconds')
@@ -280,6 +281,9 @@ def main():
     parser.add_argument('--lon', type=float, default=-74.0060, help='Starting longitude')
     
     args = parser.parse_args()
+    
+    # Get server URL from environment variable or argument
+    server_url = args.server or os.getenv('API_BASE_URL', 'http://localhost:5001')
     
     # Create vehicle configuration
     vehicle_id = args.vehicle_id or f"vehicle_{random.randint(1000, 9999)}"
@@ -291,7 +295,7 @@ def main():
     )
     
     # Create and run simulator
-    simulator = EdgeSimulator(args.server, vehicle_config)
+    simulator = EdgeSimulator(server_url, vehicle_config)
     
     try:
         simulator.run_simulation(
