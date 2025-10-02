@@ -1,6 +1,7 @@
 import { Injectable } from "@angular/core";
 import { HubConnection, HubConnectionBuilder } from "@microsoft/signalr";
 import { BehaviorSubject, Observable } from "rxjs";
+import { environment } from "../../environments/environment";
 import { TelemetryRecord } from "../models/telemetry.model";
 import { Alert } from "../models/alert.model";
 
@@ -14,7 +15,7 @@ export class WebSocketService {
 
   constructor() {
     this.hubConnection = new HubConnectionBuilder()
-      .withUrl("/telemetryHub")
+      .withUrl(environment.signalRUrl)
       .build();
 
     this.startConnection();
